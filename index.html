@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bible Reader — KJV</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="header-left">
+      <h1>Bible Reader</h1>
+      <span class="subtitle">King James Version</span>
+    </div>
+    
+    <div class="header-center">
+      <div class="search">
+        <input id="searchInput" placeholder="Search (e.g. John 3, John 3:16, or 'faith')" />
+        <button id="searchBtn">Search</button>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <button id="notesPageBtn" class="nav-btn">📝 Notes</button>
+      <button id="settingsBtn" class="nav-btn settings-btn" title="Voice & TTS Settings">⚙️ Settings</button>
+    </div>
+  </header>
+
+  <!-- Settings Panel (collapsible) -->
+  <div id="settingsPanel" class="settings-panel" hidden>
+    <div class="settings-content">
+      <div class="settings-section">
+        <h3 class="settings-title">🎙️ Local Voice Settings</h3>
+        <div class="settings-row">
+          <label class="setting-label">Voice</label>
+          <select id="voiceSelect" class="setting-input"></select>
+        </div>
+        <div class="settings-row">
+          <label class="setting-label">Speed</label>
+          <input id="rateRange" type="range" min="0.6" max="1.4" step="0.05" value="0.95" class="setting-input">
+          <span id="rateValue" class="setting-value">0.95x</span>
+        </div>
+        <div class="settings-row">
+          <label class="setting-label">Pitch</label>
+          <input id="pitchRange" type="range" min="0.6" max="1.4" step="0.05" value="1.0" class="setting-input">
+          <span id="pitchValue" class="setting-value">1.00x</span>
+        </div>
+      </div>
+      
+      <div class="settings-divider"></div>
+      
+      <div class="settings-section">
+        <h3 class="settings-title">☁️ Cloud TTS (Optional)</h3>
+        <div class="settings-row">
+          <label class="setting-label">Enable Cloud TTS</label>
+          <input id="cloudToggle" type="checkbox" class="setting-checkbox">
+        </div>
+        <div class="settings-row">
+          <label class="setting-label">Provider</label>
+          <select id="cloudProvider" class="setting-input">
+            <option value="google">Google Cloud</option>
+            <option value="azure" disabled>Azure Cognitive</option>
+            <option value="aws" disabled>Amazon Polly</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label class="setting-label">Cloud Voice</label>
+          <input id="cloudVoice" placeholder="e.g. en-US-Wavenet-D" class="setting-input" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContainer">
+    <aside class="sidebar" id="mainSidebar">
+      <div id="booksList" class="books"></div>
+    </aside>
+
+    <main class="content" id="mainContent">
+
+      <div id="chapterPicker" class="chapters"></div>
+      <div id="chapterControls" class="chapter-controls">
+        <button id="readChapterBtn" class="chapter-action">Read Chapter ▶</button>
+        <button id="pauseChapterBtn" class="chapter-action">Pause ⏸</button>
+        <button id="stopChapterBtn" class="chapter-action">Stop ⏹</button>
+      </div>
+
+      <section id="searchResults" class="search-results" aria-live="polite" hidden>
+        <div id="searchMeta" class="search-meta"></div>
+        <div id="resultsList" class="results-list"></div>
+        <div id="pagination" class="pagination"></div>
+      </section>
+
+      <article id="verses" class="verses">Select a book and chapter.</article>
+    </main>
+
+    <section id="notesPage" class="notes-page" hidden>
+      <div class="notes-header">
+        <h2>My Notes & Highlights</h2>
+        <button id="backToReader" class="nav-btn">← Back to Reader</button>
+      </div>
+      <div id="notesList" class="notes-list"></div>
+      <div id="highlightsList" class="highlights-list"></div>
+    </section>
+  </div>
+
+  <div id="noteModal" class="modal" hidden>
+    <div class="modal-content">
+      <h3 id="noteModalTitle">Add Note</h3>
+      <textarea id="noteInput" placeholder="Enter your note..." rows="4"></textarea>
+      <div class="modal-actions">
+        <button id="saveNoteBtn" class="btn-primary">Save</button>
+        <button id="cancelNoteBtn" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+    <div id="reviewModal" class="modal" hidden>
+      <div class="modal-content">
+        <h3 id="reviewTitle">Book Review</h3>
+        <div id="reviewBody">
+          <p><strong>Author:</strong> <span id="reviewAuthor">—</span></p>
+          <p><strong>When:</strong> <span id="reviewWhen">—</span></p>
+          <p><strong>Celebrity:</strong> <span id="reviewCeleb">—</span></p>
+          <p><strong>Impact:</strong> <span id="reviewImpact">—</span></p>
+        </div>
+        <div class="modal-actions">
+          <button id="showChaptersBtn" class="btn-primary">Show Chapters</button>
+          <button id="closeReviewBtn" class="btn-secondary">Close</button>
+        </div>
+      </div>
+    </div>
+
+  <footer class="footer">Using the public-domain King James Version (KJV) via <a href="https://bible-api.com/">bible-api.com</a>.</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

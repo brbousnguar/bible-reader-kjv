@@ -1,0 +1,4 @@
+Flask>=2.0
+requests>=2.28
+Flask-Cors>=3.0
+# Optional: install certifi for TLS certs if needed

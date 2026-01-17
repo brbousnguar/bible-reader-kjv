@@ -1,0 +1,50 @@
+{
+  "Genesis": {
+    "author": "Traditionally Moses",
+    "when": "c. 15th–5th century BCE (composed/traditionally attributed)",
+    "celebrity": "Creation, Noah, Abraham — foundational narratives",
+    "impact": "Introduces major themes: creation, covenant, and origins of Israel; widely cited in theology and literature."
+  },
+  "Exodus": {
+    "author": "Traditionally Moses",
+    "when": "c. 15th–5th century BCE",
+    "celebrity": "The Exodus, Ten Commandments",
+    "impact": "Central to Jewish identity and law; influential for concepts of liberation and law in Western thought."
+  },
+  "Psalms": {
+    "author": "Various (David, Asaph, others)",
+    "when": "c. 10th–2nd century BCE",
+    "celebrity": "Many beloved prayers and hymns (e.g., Psalm 23)",
+    "impact": "Core of Jewish and Christian worship; strong presence in liturgy, music, and devotional life."
+  },
+  "Isaiah": {
+    "author": "Isaiah (traditionally)",
+    "when": "8th–6th century BCE (composite)",
+    "celebrity": "Messianic prophecies (often cited in Christian readings)",
+    "impact": "Major prophetic voice shaping Messianic expectations and ethical critique of rulers."
+  },
+  "Matthew": {
+    "author": "Traditionally Matthew the apostle",
+    "when": "c. 70–90 CE",
+    "celebrity": "Sermon on the Mount, Beatitudes",
+    "impact": "A primary Gospel shaping Christian ethics and Christology; widely used in teaching and liturgy."
+  },
+  "John": {
+    "author": "Traditionally John the apostle",
+    "when": "c. 90–110 CE",
+    "celebrity": "Logos theology, famous passages (John 3:16)",
+    "impact": "Deep theological portrait of Jesus; influential in doctrinal formulations and devotional reading."
+  },
+  "Romans": {
+    "author": "Paul the Apostle",
+    "when": "c. 57 CE",
+    "celebrity": "Systematic exposition of justification by faith",
+    "impact": "Foundational to Christian theology, especially doctrines of salvation and grace; pivotal in Reformation history."
+  },
+  "Revelation": {
+    "author": "John (traditionally)",
+    "when": "c. 90–100 CE",
+    "celebrity": "Apocalyptic visions and imagery",
+    "impact": "Provokes wide-ranging interpretations about prophecy and eschatology; rich in symbolic art and literature."
+  }
+}
