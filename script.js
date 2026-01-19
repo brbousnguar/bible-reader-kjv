@@ -159,54 +159,35 @@ function renderBooks(){
   }
 }
 
-// Show a quick review modal for the book; user can then choose to view chapters
+// Show a quick review for the book in the main content area
 function showBookReview(book){
-  const modal = document.getElementById('reviewModal');
-  const title = document.getElementById('reviewTitle');
-  const author = document.getElementById('reviewAuthor');
-  const when = document.getElementById('reviewWhen');
-  const celeb = document.getElementById('reviewCeleb');
-  const impact = document.getElementById('reviewImpact');
-  title.textContent = `${book.name} — Quick Review`;
+  activeBook = book;
+  document.querySelectorAll('.book-btn').forEach(n=> n.classList.toggle('active', n.textContent===book.name));
+  
   const meta = bookMeta && bookMeta[book.name];
-  author.textContent = meta && meta.author ? meta.author : 'No summary available';
-  when.textContent = meta && meta.when ? meta.when : '—';
-  celeb.textContent = meta && meta.celebrity ? meta.celebrity : '—';
-  impact.textContent = meta && meta.impact ? meta.impact : '—';
-  modal.removeAttribute('hidden');
-
-  // wire buttons
-  const showBtn = document.getElementById('showChaptersBtn');
-  const closeBtn = document.getElementById('closeReviewBtn');
-
-  function cleanup(){
-    showBtn.removeEventListener('click', onShow);
-    closeBtn.removeEventListener('click', onClose);
-    modal.removeEventListener('click', onOutside);
+  
+  // Build review HTML
+  let reviewHTML = `
+    <div class="book-review">
+      <h2>${book.name} — Quick Review</h2>
+      <div class="review-section">
+        <p><strong>Author:</strong> ${meta && meta.author ? meta.author : 'Traditionally attributed authorship varies'}</p>
+        <p><strong>When:</strong> ${meta && meta.when ? meta.when : '—'}</p>
+        <p><strong>Celebrity:</strong> ${meta && meta.celebrity ? meta.celebrity : '—'}</p>
+        <p><strong>Impact:</strong> ${meta && meta.impact ? meta.impact : '—'}</p>
+      </div>
+      <button id="showChaptersFromReview" class="show-chapters-btn">Show Chapters</button>
+    </div>
+  `;
+  
+  versesEl.innerHTML = reviewHTML;
+  chapterPicker.innerHTML = '';
+  
+  // Wire up the show chapters button
+  const showChaptersBtn = document.getElementById('showChaptersFromReview');
+  if(showChaptersBtn){
+    showChaptersBtn.addEventListener('click', ()=> selectBook(book));
   }
-
-  function onShow(){
-    cleanup();
-    modal.setAttribute('hidden','');
-    // Ensure book has originalName for API calls
-    if(!book.originalName){
-      book.originalName = book.name;
-    }
-    selectBook(book);
-  }
-  function onClose(){
-    cleanup();
-    modal.setAttribute('hidden','');
-  }
-  function onOutside(e){
-    if(e.target === modal){
-      onClose();
-    }
-  }
-
-  showBtn.addEventListener('click', onShow);
-  closeBtn.addEventListener('click', onClose);
-  modal.addEventListener('click', onOutside);
 }
 
 function selectBook(book){
