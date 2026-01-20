@@ -55,8 +55,14 @@
     </div>
     
     <div class="header-right">
+<<<<<<< HEAD
       <button id="notesPageBtn" class="nav-btn" aria-label="View Notes">📝 Notes</button>
       <button id="settingsBtn" class="nav-btn settings-btn" title="Voice & TTS Settings" aria-label="Settings">⚙️ Settings</button>
+=======
+      <button id="charactersPageBtn" class="nav-btn">👥 Characters</button>
+      <button id="notesPageBtn" class="nav-btn">📝 Notes</button>
+      <button id="settingsBtn" class="nav-btn settings-btn" title="Voice & TTS Settings">⚙️ Settings</button>
+>>>>>>> 63b0aac (Add characters feature with filtering and image support)
     </div>
   </header>
     <!-- Settings Panel (collapsible) -->
@@ -154,6 +160,27 @@
       </div>
       <div id="notesList" class="notes-list"></div>
       <div id="highlightsList" class="highlights-list"></div>
+    </section>
+
+    <section id="charactersPage" class="characters-page" hidden>
+      <div class="characters-header">
+        <h2>Bible Characters</h2>
+        <button id="backToReaderFromCharacters" class="nav-btn">← Back to Reader</button>
+      </div>
+      
+      <div class="characters-filter">
+        <label for="bookFilter">Filter by:</label>
+        <select id="bookFilter" class="filter-select">
+          <option value="all">All Books</option>
+        </select>
+      </div>
+
+      <div id="charactersList" class="characters-grid"></div>
+      
+      <div id="characterDetail" class="character-detail" hidden>
+        <button id="backToCharactersList" class="nav-btn back-btn">← Back to Characters</button>
+        <div id="characterDetailContent"></div>
+      </div>
     </section>
   </div>
 

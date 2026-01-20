@@ -1,0 +1,1124 @@
+{
+  "characters": [
+    {
+      "name": "Jesus",
+      "description": "The Son of God, Messiah, and central figure of Christianity",
+      "facts": [
+        "Born in Bethlehem",
+        "Performed many miracles",
+        "Crucified and resurrected",
+        "Founded Christianity"
+      ],
+      "appearances": [
+        {"book": "Matthew", "chapter": 1, "verse": 1, "text": "The book of the generation of Jesus Christ"},
+        {"book": "Matthew", "chapter": 3, "verse": 13, "text": "Then cometh Jesus from Galilee to Jordan"},
+        {"book": "Mark", "chapter": 1, "verse": 9, "text": "Jesus came from Nazareth of Galilee"},
+        {"book": "Luke", "chapter": 2, "verse": 21, "text": "His name was called JESUS"},
+        {"book": "John", "chapter": 1, "verse": 17, "text": "Grace and truth came by Jesus Christ"},
+        {"book": "Acts", "chapter": 1, "verse": 1, "text": "All that Jesus began both to do and teach"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Moses",
+      "description": "Prophet and leader who led the Israelites out of Egypt",
+      "facts": [
+        "Received the Ten Commandments",
+        "Led the Exodus from Egypt",
+        "Parted the Red Sea",
+        "Author of the first five books of the Bible"
+      ],
+      "appearances": [
+        {"book": "Exodus", "chapter": 2, "verse": 10, "text": "She called his name Moses"},
+        {"book": "Exodus", "chapter": 3, "verse": 4, "text": "God called unto him out of the bush, Moses, Moses"},
+        {"book": "Exodus", "chapter": 20, "verse": 1, "text": "God spake all these words to Moses"},
+        {"book": "Numbers", "chapter": 12, "verse": 3, "text": "Moses was very meek"},
+        {"book": "Deuteronomy", "chapter": 34, "verse": 5, "text": "So Moses the servant of the LORD died"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "David",
+      "description": "Second king of Israel, warrior, and psalmist",
+      "facts": [
+        "Defeated Goliath as a youth",
+        "Became King of Israel",
+        "Wrote many Psalms",
+        "Ancestor of Jesus Christ"
+      ],
+      "appearances": [
+        {"book": "1 Samuel", "chapter": 16, "verse": 13, "text": "Samuel anointed David in the midst of his brethren"},
+        {"book": "1 Samuel", "chapter": 17, "verse": 45, "text": "David said to the Philistine, I come to thee in the name of the LORD"},
+        {"book": "2 Samuel", "chapter": 5, "verse": 3, "text": "They anointed David king over Israel"},
+        {"book": "1 Kings", "chapter": 2, "verse": 10, "text": "So David slept with his fathers"},
+        {"book": "Psalms", "chapter": 23, "verse": 1, "text": "A Psalm of David. The LORD is my shepherd"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Abraham",
+      "description": "Father of the Hebrew people and friend of God",
+      "facts": [
+        "Originally named Abram",
+        "Called by God to leave his homeland",
+        "Father of Isaac and Ishmael",
+        "Made covenant with God"
+      ],
+      "appearances": [
+        {"book": "Genesis", "chapter": 12, "verse": 1, "text": "The LORD had said unto Abram, Get thee out of thy country"},
+        {"book": "Genesis", "chapter": 17, "verse": 5, "text": "Thy name shall be Abraham"},
+        {"book": "Genesis", "chapter": 22, "verse": 1, "text": "God did tempt Abraham"},
+        {"book": "Romans", "chapter": 4, "verse": 3, "text": "Abraham believed God"},
+        {"book": "Hebrews", "chapter": 11, "verse": 8, "text": "By faith Abraham obeyed"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Paul",
+      "description": "Apostle to the Gentiles and author of many New Testament letters",
+      "facts": [
+        "Originally named Saul",
+        "Persecuted Christians before conversion",
+        "Converted on the road to Damascus",
+        "Wrote 13 epistles in the New Testament"
+      ],
+      "appearances": [
+        {"book": "Acts", "chapter": 9, "verse": 4, "text": "Saul, Saul, why persecutest thou me?"},
+        {"book": "Acts", "chapter": 13, "verse": 9, "text": "Saul, who also is called Paul"},
+        {"book": "Romans", "chapter": 1, "verse": 1, "text": "Paul, a servant of Jesus Christ"},
+        {"book": "1 Corinthians", "chapter": 1, "verse": 1, "text": "Paul, called to be an apostle"},
+        {"book": "Galatians", "chapter": 1, "verse": 1, "text": "Paul, an apostle"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Mary",
+      "description": "Mother of Jesus Christ",
+      "facts": [
+        "Virgin birth of Jesus",
+        "Wife of Joseph",
+        "Present at the crucifixion",
+        "Among the first believers"
+      ],
+      "appearances": [
+        {"book": "Matthew", "chapter": 1, "verse": 16, "text": "Joseph, the husband of Mary, of whom was born Jesus"},
+        {"book": "Luke", "chapter": 1, "verse": 27, "text": "To a virgin espoused to a man named Joseph; and the virgin's name was Mary"},
+        {"book": "Luke", "chapter": 1, "verse": 30, "text": "The angel said unto her, Fear not, Mary"},
+        {"book": "Luke", "chapter": 2, "verse": 5, "text": "To be taxed with Mary his espoused wife"},
+        {"book": "John", "chapter": 19, "verse": 25, "text": "There stood by the cross of Jesus his mother"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Adam",
+      "description": "The first human created by God",
+      "facts": [
+        "Created in God's image",
+        "First man in the Garden of Eden",
+        "Husband of Eve",
+        "Father of all humanity"
+      ],
+      "appearances": [
+        {"book": "Genesis", "chapter": 2, "verse": 7, "text": "The LORD God formed man of the dust of the ground"},
+        {"book": "Genesis", "chapter": 2, "verse": 19, "text": "Adam gave names to all cattle"},
+        {"book": "Genesis", "chapter": 3, "verse": 17, "text": "Unto Adam he said, Because thou hast hearkened"},
+        {"book": "Genesis", "chapter": 5, "verse": 1, "text": "This is the book of the generations of Adam"},
+        {"book": "Romans", "chapter": 5, "verse": 14, "text": "Death reigned from Adam to Moses"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Eve",
+      "description": "The first woman, wife of Adam",
+      "facts": [
+        "Created from Adam's rib",
+        "First woman in the Garden of Eden",
+        "Tempted by the serpent",
+        "Mother of all living"
+      ],
+      "appearances": [
+        {"book": "Genesis", "chapter": 3, "verse": 1, "text": "The serpent said unto the woman"},
+        {"book": "Genesis", "chapter": 3, "verse": 6, "text": "The woman saw that the tree was good for food"},
+        {"book": "Genesis", "chapter": 3, "verse": 20, "text": "Adam called his wife's name Eve"},
+        {"book": "Genesis", "chapter": 4, "verse": 1, "text": "Adam knew Eve his wife"},
+        {"book": "2 Corinthians", "chapter": 11, "verse": 3, "text": "As the serpent beguiled Eve"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Noah",
+      "description": "Righteous man who built the ark and survived the flood",
+      "facts": [
+        "Built the ark as commanded by God",
+        "Saved his family and animals from the flood",
+        "Made covenant with God (rainbow)",
+        "Father of Shem, Ham, and Japheth"
+      ],
+      "appearances": [
+        {"book": "Genesis", "chapter": 6, "verse": 8, "text": "Noah found grace in the eyes of the LORD"},
+        {"book": "Genesis", "chapter": 6, "verse": 9, "text": "Noah was a just man and perfect"},
+        {"book": "Genesis", "chapter": 7, "verse": 1, "text": "The LORD said unto Noah, Come thou and all thy house into the ark"},
+        {"book": "Genesis", "chapter": 9, "verse": 1, "text": "God blessed Noah and his sons"},
+        {"book": "Hebrews", "chapter": 11, "verse": 7, "text": "By faith Noah prepared an ark"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Peter",
+      "description": "Chief apostle and leader of the early church",
+      "facts": [
+        "Originally named Simon",
+        "Fisherman called by Jesus",
+        "Denied Jesus three times",
+        "First to preach on Pentecost"
+      ],
+      "appearances": [
+        {"book": "Matthew", "chapter": 16, "verse": 16, "text": "Simon Peter answered, Thou art the Christ"},
+        {"book": "Matthew", "chapter": 16, "verse": 18, "text": "Thou art Peter, and upon this rock I will build my church"},
+        {"book": "Luke", "chapter": 22, "verse": 61, "text": "The Lord turned, and looked upon Peter"},
+        {"book": "John", "chapter": 21, "verse": 15, "text": "Jesus saith to Simon Peter, lovest thou me?"},
+        {"book": "Acts", "chapter": 2, "verse": 14, "text": "Peter, standing up with the eleven"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "John",
+      "description": "Beloved disciple and author of the Gospel of John",
+      "facts": [
+        "Son of Zebedee",
+        "Brother of James",
+        "Wrote Gospel of John, three epistles, and Revelation",
+        "Known as the disciple whom Jesus loved"
+      ],
+      "appearances": [
+        {"book": "Matthew", "chapter": 4, "verse": 21, "text": "James the son of Zebedee, and John his brother"},
+        {"book": "Mark", "chapter": 3, "verse": 17, "text": "James and John, he surnamed them Boanerges"},
+        {"book": "John", "chapter": 13, "verse": 23, "text": "There was leaning on Jesus' bosom one of his disciples, whom Jesus loved"},
+        {"book": "Acts", "chapter": 3, "verse": 1, "text": "Peter and John went up together into the temple"},
+        {"book": "Revelation", "chapter": 1, "verse": 1, "text": "The Revelation of Jesus Christ, which he gave unto John"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Sarah",
+      "description": "Wife of Abraham and mother of Isaac",
+      "facts": [
+        "Originally named Sarai",
+        "Gave birth to Isaac at age 90",
+        "Considered the mother of Israel",
+        "Known for her faith and beauty"
+      ],
+      "appearances": [
+        {"book": "Genesis", "chapter": 17, "verse": 15, "text": "Thou shalt not call her name Sarai, but Sarah shall her name be"},
+        {"book": "Genesis", "chapter": 18, "verse": 12, "text": "Sarah laughed within herself"},
+        {"book": "Genesis", "chapter": 21, "verse": 2, "text": "Sarah conceived, and bare Abraham a son"},
+        {"book": "Isaiah", "chapter": 51, "verse": 2, "text": "Look unto Abraham and unto Sarah"},
+        {"book": "Hebrews", "chapter": 11, "verse": 11, "text": "Through faith also Sara received strength"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Isaac",
+      "description": "Son of Abraham and Sarah, father of Jacob and Esau",
+      "facts": ["Child of promise", "Nearly sacrificed by Abraham", "Husband of Rebekah", "One of the three patriarchs"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 21, "verse": 3, "text": "Abraham called the name of his son Isaac"},
+        {"book": "Genesis", "chapter": 22, "verse": 2, "text": "Take now thy son, thine only son Isaac"},
+        {"book": "Genesis", "chapter": 24, "verse": 67, "text": "Isaac brought her into his mother Sarah's tent"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Jacob",
+      "description": "Son of Isaac, father of the twelve tribes of Israel",
+      "facts": ["Later named Israel", "Wrestled with God", "Had twelve sons", "Father of Joseph"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 25, "verse": 26, "text": "His name was called Jacob"},
+        {"book": "Genesis", "chapter": 32, "verse": 28, "text": "Thy name shall be called no more Jacob, but Israel"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Joseph",
+      "description": "Son of Jacob who became vizier of Egypt",
+      "facts": ["Sold into slavery by his brothers", "Interpreted Pharaoh's dreams", "Saved Egypt from famine", "Wore the coat of many colors"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 37, "verse": 3, "text": "Israel loved Joseph more than all his children"},
+        {"book": "Genesis", "chapter": 41, "verse": 41, "text": "Pharaoh said unto Joseph, I have set thee over all the land of Egypt"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Joshua",
+      "description": "Moses' successor who led Israel into the Promised Land",
+      "facts": ["Led the conquest of Canaan", "Made the sun stand still", "Crossed the Jordan River", "Conquered Jericho"],
+      "appearances": [
+        {"book": "Joshua", "chapter": 1, "verse": 1, "text": "The LORD spake unto Joshua the son of Nun"},
+        {"book": "Joshua", "chapter": 6, "verse": 27, "text": "The LORD was with Joshua"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Samson",
+      "description": "Judge of Israel known for supernatural strength",
+      "facts": ["Nazirite from birth", "Killed a lion with his bare hands", "Strength was in his hair", "Died destroying Philistine temple"],
+      "appearances": [
+        {"book": "Judges", "chapter": 13, "verse": 24, "text": "The woman bare a son, and called his name Samson"},
+        {"book": "Judges", "chapter": 16, "verse": 30, "text": "Samson said, Let me die with the Philistines"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Ruth",
+      "description": "Moabite woman who became ancestor of David",
+      "facts": ["Daughter-in-law of Naomi", "Said 'thy people shall be my people'", "Married Boaz", "Great-grandmother of David"],
+      "appearances": [
+        {"book": "Ruth", "chapter": 1, "verse": 16, "text": "Ruth said, whither thou goest, I will go"},
+        {"book": "Ruth", "chapter": 4, "verse": 13, "text": "Boaz took Ruth, and she was his wife"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Samuel",
+      "description": "Prophet and last judge of Israel",
+      "facts": ["Dedicated to God as a child", "Anointed both Saul and David as kings", "Heard God's voice as a boy", "Established the monarchy"],
+      "appearances": [
+        {"book": "1 Samuel", "chapter": 3, "verse": 4, "text": "The LORD called Samuel"},
+        {"book": "1 Samuel", "chapter": 16, "verse": 13, "text": "Samuel took the horn of oil, and anointed David"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Saul",
+      "description": "First king of Israel",
+      "facts": ["Chosen by God through Samuel", "Later rejected as king", "Pursued David out of jealousy", "Died in battle against Philistines"],
+      "appearances": [
+        {"book": "1 Samuel", "chapter": 10, "verse": 1, "text": "Samuel took a vial of oil, and poured it upon Saul's head"},
+        {"book": "1 Samuel", "chapter": 15, "verse": 23, "text": "The LORD hath rejected thee from being king"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Solomon",
+      "description": "Third king of Israel, known for wisdom",
+      "facts": ["Son of David and Bathsheba", "Asked God for wisdom", "Built the First Temple", "Wrote Proverbs, Ecclesiastes, Song of Solomon"],
+      "appearances": [
+        {"book": "1 Kings", "chapter": 3, "verse": 12, "text": "I have given thee a wise and understanding heart"},
+        {"book": "1 Kings", "chapter": 6, "verse": 1, "text": "Solomon began to build the house of the LORD"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Elijah",
+      "description": "Prophet who challenged Baal worship",
+      "facts": ["Called down fire from heaven", "Taken to heaven in a whirlwind", "Fed by ravens", "Confronted Ahab and Jezebel"],
+      "appearances": [
+        {"book": "1 Kings", "chapter": 17, "verse": 1, "text": "Elijah the Tishbite said unto Ahab"},
+        {"book": "2 Kings", "chapter": 2, "verse": 11, "text": "Elijah went up by a whirlwind into heaven"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Elisha",
+      "description": "Prophet and successor to Elijah",
+      "facts": ["Received double portion of Elijah's spirit", "Performed many miracles", "Healed Naaman of leprosy", "Made an axe head float"],
+      "appearances": [
+        {"book": "2 Kings", "chapter": 2, "verse": 9, "text": "Elisha said, Let a double portion of thy spirit be upon me"},
+        {"book": "2 Kings", "chapter": 5, "verse": 14, "text": "Naaman went down, and dipped himself seven times in Jordan"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Isaiah",
+      "description": "Major prophet who prophesied about the Messiah",
+      "facts": ["Prophesied virgin birth of Christ", "Foretold suffering servant", "Had vision of God's throne", "Prophesied for 60 years"],
+      "appearances": [
+        {"book": "Isaiah", "chapter": 6, "verse": 8, "text": "I heard the voice of the Lord, saying, Whom shall I send?"},
+        {"book": "Isaiah", "chapter": 53, "verse": 5, "text": "He was wounded for our transgressions"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Jeremiah",
+      "description": "The weeping prophet of Judah",
+      "facts": ["Prophesied Babylon's conquest", "Called from youth", "Thrown into a cistern", "Wrote Lamentations"],
+      "appearances": [
+        {"book": "Jeremiah", "chapter": 1, "verse": 5, "text": "Before I formed thee in the belly I knew thee"},
+        {"book": "Jeremiah", "chapter": 38, "verse": 6, "text": "They cast Jeremiah into the dungeon"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Ezekiel",
+      "description": "Prophet during Babylonian captivity",
+      "facts": ["Had visions of God's glory", "Saw the valley of dry bones", "Prophesied to exiles", "Saw wheel within a wheel"],
+      "appearances": [
+        {"book": "Ezekiel", "chapter": 1, "verse": 1, "text": "The heavens were opened, and I saw visions of God"},
+        {"book": "Ezekiel", "chapter": 37, "verse": 1, "text": "He brought me out in the spirit, and set me down in the midst of the valley"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Daniel",
+      "description": "Prophet in Babylon, interpreter of dreams",
+      "facts": ["Thrown into lions' den", "Interpreted Nebuchadnezzar's dreams", "Saw visions of end times", "Remained faithful in exile"],
+      "appearances": [
+        {"book": "Daniel", "chapter": 2, "verse": 19, "text": "Then was the secret revealed unto Daniel"},
+        {"book": "Daniel", "chapter": 6, "verse": 22, "text": "My God hath sent his angel, and hath shut the lions' mouths"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Jonah",
+      "description": "Prophet who was swallowed by a great fish",
+      "facts": ["Fled from God's call", "Swallowed by fish for three days", "Preached to Nineveh", "Learned about God's mercy"],
+      "appearances": [
+        {"book": "Jonah", "chapter": 1, "verse": 17, "text": "The LORD had prepared a great fish to swallow up Jonah"},
+        {"book": "Jonah", "chapter": 3, "verse": 5, "text": "The people of Nineveh believed God"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Esther",
+      "description": "Jewish queen who saved her people",
+      "facts": ["Became queen of Persia", "Risked her life to save Jews", "Orphan raised by Mordecai", "Celebrated in Purim"],
+      "appearances": [
+        {"book": "Esther", "chapter": 2, "verse": 17, "text": "The king loved Esther above all the women"},
+        {"book": "Esther", "chapter": 4, "verse": 16, "text": "If I perish, I perish"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Job",
+      "description": "Righteous man who suffered great trials",
+      "facts": ["Lost everything but remained faithful", "Tested by Satan", "Questioned God's justice", "Restored double his losses"],
+      "appearances": [
+        {"book": "Job", "chapter": 1, "verse": 1, "text": "There was a man whose name was Job, and that man was perfect"},
+        {"book": "Job", "chapter": 42, "verse": 12, "text": "The LORD blessed the latter end of Job more than his beginning"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Nehemiah",
+      "description": "Rebuilt the walls of Jerusalem",
+      "facts": ["Cupbearer to Persian king", "Led rebuilding of Jerusalem", "Governor of Judah", "Reformed Jewish practices"],
+      "appearances": [
+        {"book": "Nehemiah", "chapter": 2, "verse": 5, "text": "Send me unto Judah, that I may build it"},
+        {"book": "Nehemiah", "chapter": 6, "verse": 15, "text": "The wall was finished"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Ezra",
+      "description": "Priest and scribe who restored Torah observance",
+      "facts": ["Led return from exile", "Restored worship practices", "Read the Law to the people", "Priest and scholar"],
+      "appearances": [
+        {"book": "Ezra", "chapter": 7, "verse": 10, "text": "Ezra had prepared his heart to seek the law of the LORD"},
+        {"book": "Nehemiah", "chapter": 8, "verse": 1, "text": "They spake unto Ezra the scribe to bring the book of the law"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Deborah",
+      "description": "Judge and prophetess of Israel",
+      "facts": ["Only female judge", "Led Israel to victory", "Prophetess and military leader", "Judged under the palm tree"],
+      "appearances": [
+        {"book": "Judges", "chapter": 4, "verse": 4, "text": "Deborah, a prophetess, she judged Israel at that time"},
+        {"book": "Judges", "chapter": 5, "verse": 1, "text": "Then sang Deborah"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Gideon",
+      "description": "Judge who defeated Midianites with 300 men",
+      "facts": ["Called by angel", "Reduced army to 300", "Used trumpets and torches", "Refused to be king"],
+      "appearances": [
+        {"book": "Judges", "chapter": 6, "verse": 12, "text": "The angel of the LORD appeared unto him, The LORD is with thee"},
+        {"book": "Judges", "chapter": 7, "verse": 7, "text": "By the three hundred men will I save you"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Bathsheba",
+      "description": "Wife of David, mother of Solomon",
+      "facts": ["Originally wife of Uriah", "Committed adultery with David", "Mother of Solomon", "Influenced succession"],
+      "appearances": [
+        {"book": "2 Samuel", "chapter": 11, "verse": 3, "text": "Is not this Bathsheba, the daughter of Eliam?"},
+        {"book": "1 Kings", "chapter": 1, "verse": 16, "text": "Bathsheba bowed, and did reverence unto the king"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Naomi",
+      "description": "Mother-in-law of Ruth",
+      "facts": ["Lost husband and sons", "Returned to Bethlehem", "Advised Ruth", "Grandmother of Obed"],
+      "appearances": [
+        {"book": "Ruth", "chapter": 1, "verse": 20, "text": "Call me not Naomi, call me Mara"},
+        {"book": "Ruth", "chapter": 4, "verse": 16, "text": "Naomi took the child, and laid it in her bosom"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Hannah",
+      "description": "Mother of Samuel the prophet",
+      "facts": ["Was barren, then conceived", "Dedicated Samuel to God", "Prayed with great faith", "Had five more children"],
+      "appearances": [
+        {"book": "1 Samuel", "chapter": 1, "verse": 20, "text": "Hannah conceived, and bare a son, and called his name Samuel"},
+        {"book": "1 Samuel", "chapter": 2, "verse": 1, "text": "Hannah prayed, and said, My heart rejoiceth in the LORD"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Goliath",
+      "description": "Philistine giant defeated by David",
+      "facts": ["Over nine feet tall", "Challenged Israel for forty days", "Killed by David's sling", "Champion of the Philistines"],
+      "appearances": [
+        {"book": "1 Samuel", "chapter": 17, "verse": 4, "text": "There went out a champion named Goliath, whose height was six cubits"},
+        {"book": "1 Samuel", "chapter": 17, "verse": 49, "text": "David smote the Philistine in his forehead"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Jonathan",
+      "description": "Son of Saul and friend of David",
+      "facts": ["Best friend of David", "Made covenant with David", "Warned David of danger", "Died in battle with his father"],
+      "appearances": [
+        {"book": "1 Samuel", "chapter": 18, "verse": 1, "text": "The soul of Jonathan was knit with the soul of David"},
+        {"book": "1 Samuel", "chapter": 20, "verse": 17, "text": "Jonathan caused David to swear, because he loved him"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Jezebel",
+      "description": "Evil queen who promoted Baal worship",
+      "facts": ["Wife of King Ahab", "Killed prophets of God", "Enemy of Elijah", "Met a violent death"],
+      "appearances": [
+        {"book": "1 Kings", "chapter": 19, "verse": 2, "text": "Jezebel sent a messenger unto Elijah"},
+        {"book": "2 Kings", "chapter": 9, "verse": 33, "text": "They threw Jezebel down"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Hezekiah",
+      "description": "Righteous king of Judah",
+      "facts": ["Restored temple worship", "Destroyed idols", "Defended against Assyria", "Life extended 15 years"],
+      "appearances": [
+        {"book": "2 Kings", "chapter": 18, "verse": 5, "text": "Hezekiah trusted in the LORD God of Israel"},
+        {"book": "2 Kings", "chapter": 20, "verse": 5, "text": "I will add unto thy days fifteen years"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Josiah",
+      "description": "Boy king who reformed Judah",
+      "facts": ["Became king at age 8", "Found Book of the Law", "Destroyed pagan altars", "Celebrated Passover"],
+      "appearances": [
+        {"book": "2 Kings", "chapter": 22, "verse": 1, "text": "Josiah was eight years old when he began to reign"},
+        {"book": "2 Kings", "chapter": 23, "verse": 25, "text": "Like unto him was there no king before him"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Cain",
+      "description": "First son of Adam, who murdered Abel",
+      "facts": ["First child born", "Killed his brother Abel", "Marked by God", "Built first city"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 4, "verse": 1, "text": "She conceived, and bare Cain"},
+        {"book": "Genesis", "chapter": 4, "verse": 8, "text": "Cain rose up against Abel his brother, and slew him"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Abel",
+      "description": "Second son of Adam, first martyr",
+      "facts": ["Shepherd", "Offered acceptable sacrifice", "Murdered by Cain", "Righteous before God"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 4, "verse": 2, "text": "She again bare his brother Abel"},
+        {"book": "Hebrews", "chapter": 11, "verse": 4, "text": "By faith Abel offered unto God a more excellent sacrifice"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Enoch",
+      "description": "Man who walked with God and did not die",
+      "facts": ["Walked with God", "Taken to heaven without dying", "Father of Methuselah", "Lived 365 years"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 5, "verse": 24, "text": "Enoch walked with God: and he was not; for God took him"},
+        {"book": "Hebrews", "chapter": 11, "verse": 5, "text": "By faith Enoch was translated that he should not see death"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Lot",
+      "description": "Nephew of Abraham who escaped Sodom",
+      "facts": ["Lived in Sodom", "Rescued by angels", "Wife turned to salt", "Fled to Zoar"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 13, "verse": 12, "text": "Lot dwelled in the cities of the plain"},
+        {"book": "Genesis", "chapter": 19, "verse": 26, "text": "His wife looked back from behind him, and she became a pillar of salt"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Rebekah",
+      "description": "Wife of Isaac, mother of Jacob and Esau",
+      "facts": ["Chosen as Isaac's wife", "Mother of twins", "Helped Jacob deceive Isaac", "Sister of Laban"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 24, "verse": 67, "text": "Isaac brought Rebekah into his mother's tent, and she became his wife"},
+        {"book": "Genesis", "chapter": 27, "verse": 13, "text": "His mother said unto him, Upon me be thy curse, my son"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Rachel",
+      "description": "Beloved wife of Jacob",
+      "facts": ["Jacob worked 14 years for her", "Mother of Joseph and Benjamin", "Died giving birth to Benjamin", "Was very beautiful"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 29, "verse": 17, "text": "Rachel was beautiful and well favoured"},
+        {"book": "Genesis", "chapter": 35, "verse": 19, "text": "Rachel died, and was buried in the way to Bethlehem"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Leah",
+      "description": "First wife of Jacob",
+      "facts": ["Jacob's first wife through deception", "Mother of six sons", "Not as favored as Rachel", "Mother of Judah"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 29, "verse": 23, "text": "He took Leah his daughter, and brought her to Jacob"},
+        {"book": "Genesis", "chapter": 29, "verse": 35, "text": "She conceived again, and bare a son: and she called his name Judah"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Aaron",
+      "description": "Brother of Moses, first high priest",
+      "facts": ["Spokesman for Moses", "Made golden calf", "First high priest of Israel", "Staff budded with almonds"],
+      "appearances": [
+        {"book": "Exodus", "chapter": 4, "verse": 14, "text": "Is not Aaron the Levite thy brother?"},
+        {"book": "Exodus", "chapter": 28, "verse": 1, "text": "Take thou unto thee Aaron thy brother, that he may minister unto me"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Miriam",
+      "description": "Prophetess, sister of Moses and Aaron",
+      "facts": ["Watched over baby Moses", "Led women in song after Red Sea", "Struck with leprosy for rebellion", "Buried at Kadesh"],
+      "appearances": [
+        {"book": "Exodus", "chapter": 15, "verse": 20, "text": "Miriam the prophetess took a timbrel in her hand"},
+        {"book": "Numbers", "chapter": 12, "verse": 10, "text": "Miriam became leprous, white as snow"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Caleb",
+      "description": "Faithful spy who entered Promised Land",
+      "facts": ["One of twelve spies", "Gave good report with Joshua", "Followed God wholeheartedly", "Received Hebron as inheritance"],
+      "appearances": [
+        {"book": "Numbers", "chapter": 13, "verse": 30, "text": "Caleb stilled the people, Let us go up at once"},
+        {"book": "Joshua", "chapter": 14, "verse": 14, "text": "Hebron therefore became the inheritance of Caleb"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Boaz",
+      "description": "Kinsman-redeemer who married Ruth",
+      "facts": ["Wealthy landowner", "Showed kindness to Ruth", "Redeemed Naomi's land", "Ancestor of David and Jesus"],
+      "appearances": [
+        {"book": "Ruth", "chapter": 2, "verse": 1, "text": "Naomi had a kinsman, a mighty man of wealth, named Boaz"},
+        {"book": "Ruth", "chapter": 4, "verse": 13, "text": "Boaz took Ruth, and she was his wife"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "King Nebuchadnezzar",
+      "description": "Babylonian king who conquered Jerusalem",
+      "facts": ["Conquered Judah", "Built hanging gardens", "Went mad for seven years", "Destroyed Solomon's Temple"],
+      "appearances": [
+        {"book": "2 Kings", "chapter": 25, "verse": 1, "text": "Nebuchadnezzar king of Babylon came against Jerusalem"},
+        {"book": "Daniel", "chapter": 4, "verse": 33, "text": "The same hour was Nebuchadnezzar driven from men"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Cyrus",
+      "description": "Persian king who freed Jews from exile",
+      "facts": ["Conquered Babylon", "Freed Jewish exiles", "Funded temple rebuilding", "Called God's anointed"],
+      "appearances": [
+        {"book": "Ezra", "chapter": 1, "verse": 1, "text": "The LORD stirred up the spirit of Cyrus king of Persia"},
+        {"book": "Isaiah", "chapter": 45, "verse": 1, "text": "Thus saith the LORD to his anointed, to Cyrus"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Matthew",
+      "description": "Tax collector turned apostle, Gospel writer",
+      "facts": ["Former tax collector", "Called by Jesus", "Wrote first Gospel", "Also called Levi"],
+      "appearances": [
+        {"book": "Matthew", "chapter": 9, "verse": 9, "text": "Jesus saw a man, named Matthew, sitting at the receipt of custom"},
+        {"book": "Matthew", "chapter": 10, "verse": 3, "text": "Thomas, and Matthew the publican"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Mark",
+      "description": "Author of the second Gospel",
+      "facts": ["Gospel writer", "Companion of Peter", "Traveled with Paul and Barnabas", "Also called John Mark"],
+      "appearances": [
+        {"book": "Acts", "chapter": 12, "verse": 25, "text": "They took with them John, whose surname was Mark"},
+        {"book": "1 Peter", "chapter": 5, "verse": 13, "text": "Marcus my son saluteth you"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Luke",
+      "description": "Physician and Gospel writer",
+      "facts": ["Beloved physician", "Wrote Gospel and Acts", "Companion of Paul", "Gentile believer"],
+      "appearances": [
+        {"book": "Colossians", "chapter": 4, "verse": 14, "text": "Luke, the beloved physician"},
+        {"book": "2 Timothy", "chapter": 4, "verse": 11, "text": "Only Luke is with me"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "James",
+      "description": "Brother of John, first apostle martyred",
+      "facts": ["Son of Zebedee", "Brother of John", "One of inner three disciples", "Martyred by Herod"],
+      "appearances": [
+        {"book": "Matthew", "chapter": 4, "verse": 21, "text": "He saw James the son of Zebedee, and John his brother"},
+        {"book": "Acts", "chapter": 12, "verse": 2, "text": "Herod killed James the brother of John with the sword"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Andrew",
+      "description": "Apostle who brought Peter to Jesus",
+      "facts": ["Brother of Peter", "Former disciple of John Baptist", "Brought people to Jesus", "One of first disciples"],
+      "appearances": [
+        {"book": "John", "chapter": 1, "verse": 40, "text": "One of the two which heard John speak was Andrew"},
+        {"book": "John", "chapter": 6, "verse": 8, "text": "Andrew, Simon Peter's brother, saith unto him"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Philip",
+      "description": "Apostle who brought Nathanael to Jesus",
+      "facts": ["From Bethsaida", "Brought Nathanael to Jesus", "Asked to see the Father", "Tested by Jesus"],
+      "appearances": [
+        {"book": "John", "chapter": 1, "verse": 43, "text": "Jesus findeth Philip, and saith unto him, Follow me"},
+        {"book": "John", "chapter": 14, "verse": 8, "text": "Philip saith unto him, Lord, shew us the Father"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Thomas",
+      "description": "Apostle known as 'Doubting Thomas'",
+      "facts": ["Called Didymus (twin)", "Doubted resurrection", "Believed after seeing Jesus", "Willing to die with Jesus"],
+      "appearances": [
+        {"book": "John", "chapter": 11, "verse": 16, "text": "Thomas, called Didymus, said, Let us also go, that we may die with him"},
+        {"book": "John", "chapter": 20, "verse": 28, "text": "Thomas answered and said unto him, My Lord and my God"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Bartholomew",
+      "description": "Apostle also known as Nathanael",
+      "facts": ["Also called Nathanael", "True Israelite", "Under the fig tree", "Recognized Jesus as Son of God"],
+      "appearances": [
+        {"book": "Matthew", "chapter": 10, "verse": 3, "text": "Philip, and Bartholomew"},
+        {"book": "John", "chapter": 1, "verse": 47, "text": "Jesus saw Nathanael, Behold an Israelite indeed"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Judas Iscariot",
+      "description": "Apostle who betrayed Jesus",
+      "facts": ["Betrayed Jesus for 30 silver pieces", "Treasurer of disciples", "Possessed by Satan", "Committed suicide"],
+      "appearances": [
+        {"book": "Matthew", "chapter": 26, "verse": 14, "text": "Judas Iscariot, went unto the chief priests"},
+        {"book": "Matthew", "chapter": 27, "verse": 5, "text": "He cast down the pieces of silver and went and hanged himself"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Barnabas",
+      "description": "Encourager and missionary companion of Paul",
+      "facts": ["Name means 'son of encouragement'", "Sold land for church", "Vouched for Paul", "Missionary partner"],
+      "appearances": [
+        {"book": "Acts", "chapter": 4, "verse": 36, "text": "Joses, who by the apostles was surnamed Barnabas, (which is, The son of consolation)"},
+        {"book": "Acts", "chapter": 13, "verse": 2, "text": "Separate me Barnabas and Saul for the work"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Stephen",
+      "description": "First Christian martyr",
+      "facts": ["First deacon", "Full of faith and power", "Stoned to death", "Saw vision of Jesus"],
+      "appearances": [
+        {"book": "Acts", "chapter": 6, "verse": 5, "text": "They chose Stephen, a man full of faith and of the Holy Ghost"},
+        {"book": "Acts", "chapter": 7, "verse": 59, "text": "They stoned Stephen, calling upon God"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Timothy",
+      "description": "Young pastor mentored by Paul",
+      "facts": ["Paul's spiritual son", "Pastor at Ephesus", "Received two epistles from Paul", "Had Greek father, Jewish mother"],
+      "appearances": [
+        {"book": "Acts", "chapter": 16, "verse": 1, "text": "A certain disciple was there, named Timotheus"},
+        {"book": "1 Timothy", "chapter": 1, "verse": 2, "text": "Unto Timothy, my own son in the faith"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Titus",
+      "description": "Pastor and companion of Paul",
+      "facts": ["Gentile convert", "Pastor in Crete", "Received epistle from Paul", "Mediator in Corinth"],
+      "appearances": [
+        {"book": "2 Corinthians", "chapter": 7, "verse": 6, "text": "God comforted us by the coming of Titus"},
+        {"book": "Titus", "chapter": 1, "verse": 4, "text": "To Titus, mine own son after the common faith"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Silas",
+      "description": "Prophet and Paul's missionary companion",
+      "facts": ["Also called Silvanus", "Prophet in Jerusalem", "Traveled with Paul", "Co-author of epistles"],
+      "appearances": [
+        {"book": "Acts", "chapter": 15, "verse": 22, "text": "Judas surnamed Barsabas, and Silas, chief men among the brethren"},
+        {"book": "Acts", "chapter": 16, "verse": 25, "text": "At midnight Paul and Silas prayed, and sang praises"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Lydia",
+      "description": "First European convert to Christianity",
+      "facts": ["Seller of purple", "From Thyatira", "First baptized in Europe", "Hosted Paul"],
+      "appearances": [
+        {"book": "Acts", "chapter": 16, "verse": 14, "text": "A certain woman named Lydia, a seller of purple"},
+        {"book": "Acts", "chapter": 16, "verse": 15, "text": "When she was baptized, she besought us"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Priscilla",
+      "description": "Teacher and tentmaker with Aquila",
+      "facts": ["Wife of Aquila", "Tentmaker", "Taught Apollos", "Hosted church in home"],
+      "appearances": [
+        {"book": "Acts", "chapter": 18, "verse": 2, "text": "Aquila, with his wife Priscilla"},
+        {"book": "Acts", "chapter": 18, "verse": 26, "text": "Priscilla and Aquila expounded unto him the way of God"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Aquila",
+      "description": "Tentmaker and teacher with Priscilla",
+      "facts": ["Husband of Priscilla", "Tentmaker", "Worked with Paul", "Church planter"],
+      "appearances": [
+        {"book": "Acts", "chapter": 18, "verse": 2, "text": "A certain Jew named Aquila"},
+        {"book": "Romans", "chapter": 16, "verse": 3, "text": "Greet Priscilla and Aquila my helpers in Christ Jesus"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Mary Magdalene",
+      "description": "Follower of Jesus, first to see risen Christ",
+      "facts": ["Delivered from seven demons", "Followed Jesus", "At the crucifixion", "First to see resurrected Jesus"],
+      "appearances": [
+        {"book": "Luke", "chapter": 8, "verse": 2, "text": "Mary called Magdalene, out of whom went seven devils"},
+        {"book": "John", "chapter": 20, "verse": 16, "text": "Jesus saith unto her, Mary"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Martha",
+      "description": "Sister of Mary and Lazarus",
+      "facts": ["Hosted Jesus", "Sister of Lazarus", "Served Jesus", "Confessed Jesus as Messiah"],
+      "appearances": [
+        {"book": "Luke", "chapter": 10, "verse": 38, "text": "A certain woman named Martha received him into her house"},
+        {"book": "John", "chapter": 11, "verse": 27, "text": "She saith unto him, Yea, Lord: I believe that thou art the Christ"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Lazarus",
+      "description": "Friend of Jesus who was raised from the dead",
+      "facts": ["Brother of Mary and Martha", "Friend of Jesus", "Raised after four days", "Testimony to many"],
+      "appearances": [
+        {"book": "John", "chapter": 11, "verse": 1, "text": "A certain man was sick, named Lazarus, of Bethany"},
+        {"book": "John", "chapter": 11, "verse": 43, "text": "He cried with a loud voice, Lazarus, come forth"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Nicodemus",
+      "description": "Pharisee who visited Jesus at night",
+      "facts": ["Member of Sanhedrin", "Came to Jesus by night", "Born again conversation", "Brought spices for burial"],
+      "appearances": [
+        {"book": "John", "chapter": 3, "verse": 1, "text": "There was a man of the Pharisees, named Nicodemus"},
+        {"book": "John", "chapter": 19, "verse": 39, "text": "Nicodemus came, bringing a mixture of myrrh and aloes"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Zacchaeus",
+      "description": "Tax collector who climbed tree to see Jesus",
+      "facts": ["Chief tax collector", "Short in stature", "Climbed sycamore tree", "Repaid those he cheated"],
+      "appearances": [
+        {"book": "Luke", "chapter": 19, "verse": 2, "text": "Behold, there was a man named Zacchaeus, which was the chief among the publicans"},
+        {"book": "Luke", "chapter": 19, "verse": 8, "text": "Zacchaeus stood, and said, I give half of my goods to the poor"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Joseph of Arimathea",
+      "description": "Secret disciple who buried Jesus",
+      "facts": ["Member of Sanhedrin", "Secret disciple", "Gave tomb for Jesus", "Rich man"],
+      "appearances": [
+        {"book": "Mark", "chapter": 15, "verse": 43, "text": "Joseph of Arimathea, an honourable counsellor"},
+        {"book": "John", "chapter": 19, "verse": 38, "text": "Joseph of Arimathea besought Pilate that he might take away the body of Jesus"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "John the Baptist",
+      "description": "Prophet who prepared the way for Jesus",
+      "facts": ["Forerunner of Christ", "Baptized Jesus", "Preached repentance", "Beheaded by Herod"],
+      "appearances": [
+        {"book": "Matthew", "chapter": 3, "verse": 1, "text": "In those days came John the Baptist"},
+        {"book": "Matthew", "chapter": 14, "verse": 10, "text": "He sent, and beheaded John in the prison"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Elizabeth",
+      "description": "Mother of John the Baptist",
+      "facts": ["Wife of Zacharias", "Cousin of Mary", "Barren until old age", "Mother of John Baptist"],
+      "appearances": [
+        {"book": "Luke", "chapter": 1, "verse": 5, "text": "His wife was of the daughters of Aaron, and her name was Elisabeth"},
+        {"book": "Luke", "chapter": 1, "verse": 41, "text": "Elisabeth was filled with the Holy Ghost"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Zacharias",
+      "description": "Priest and father of John the Baptist",
+      "facts": ["Priest of God", "Struck mute for doubting", "Father of John Baptist", "Prophesied at John's birth"],
+      "appearances": [
+        {"book": "Luke", "chapter": 1, "verse": 5, "text": "There was a certain priest named Zacharias"},
+        {"book": "Luke", "chapter": 1, "verse": 20, "text": "Thou shalt be dumb, because thou believest not my words"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Pontius Pilate",
+      "description": "Roman governor who condemned Jesus",
+      "facts": ["Roman governor of Judea", "Tried Jesus", "Washed hands of responsibility", "Released Barabbas"],
+      "appearances": [
+        {"book": "Matthew", "chapter": 27, "verse": 2, "text": "They delivered him to Pontius Pilate the governor"},
+        {"book": "Matthew", "chapter": 27, "verse": 24, "text": "Pilate took water, and washed his hands"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Herod",
+      "description": "King who killed babies seeking Jesus",
+      "facts": ["King during Jesus' birth", "Killed babies in Bethlehem", "Sought to kill Jesus", "Paranoid ruler"],
+      "appearances": [
+        {"book": "Matthew", "chapter": 2, "verse": 1, "text": "When Jesus was born in Bethlehem in the days of Herod the king"},
+        {"book": "Matthew", "chapter": 2, "verse": 16, "text": "Herod sent forth, and slew all the children"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Melchizedek",
+      "description": "Mysterious priest-king who blessed Abraham",
+      "facts": ["King of Salem", "Priest of God Most High", "Blessed Abraham", "Type of Christ"],
+      "appearances": [
+        {"book": "Genesis", "chapter": 14, "verse": 18, "text": "Melchizedek king of Salem brought forth bread and wine"},
+        {"book": "Hebrews", "chapter": 7, "verse": 1, "text": "This Melchisedec, king of Salem, priest of the most high God"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Mordecai",
+      "description": "Uncle of Esther who saved the Jews",
+      "facts": ["Raised Esther", "Uncovered assassination plot", "Refused to bow to Haman", "Became second to king"],
+      "appearances": [
+        {"book": "Esther", "chapter": 2, "verse": 5, "text": "There was a certain Jew, whose name was Mordecai"},
+        {"book": "Esther", "chapter": 10, "verse": 3, "text": "Mordecai the Jew was next unto king Ahasuerus"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Haman",
+      "description": "Enemy of the Jews in Persia",
+      "facts": ["Promoted by king", "Plotted to kill Jews", "Built gallows for Mordecai", "Hanged on own gallows"],
+      "appearances": [
+        {"book": "Esther", "chapter": 3, "verse": 1, "text": "King Ahasuerus promoted Haman"},
+        {"book": "Esther", "chapter": 7, "verse": 10, "text": "They hanged Haman on the gallows"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Shadrach",
+      "description": "One of three men thrown in fiery furnace",
+      "facts": ["Also called Hananiah", "Refused to worship idol", "Thrown in fiery furnace", "Protected by fourth man"],
+      "appearances": [
+        {"book": "Daniel", "chapter": 1, "verse": 7, "text": "He gave unto Hananiah, the name of Shadrach"},
+        {"book": "Daniel", "chapter": 3, "verse": 26, "text": "Shadrach, Meshach, and Abednego, came forth of the midst of the fire"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Meshach",
+      "description": "Companion of Daniel in Babylon",
+      "facts": ["Also called Mishael", "Friend of Daniel", "Survived fiery furnace", "Faithful under persecution"],
+      "appearances": [
+        {"book": "Daniel", "chapter": 1, "verse": 7, "text": "Of Mishael, Meshach"},
+        {"book": "Daniel", "chapter": 3, "verse": 28, "text": "Blessed be the God of Shadrach, Meshach, and Abednego"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Abednego",
+      "description": "Third man in fiery furnace",
+      "facts": ["Also called Azariah", "Refused idol worship", "Promoted in Babylon", "Testified to God's power"],
+      "appearances": [
+        {"book": "Daniel", "chapter": 1, "verse": 7, "text": "Of Azariah, Abednego"},
+        {"book": "Daniel", "chapter": 3, "verse": 30, "text": "The king promoted Shadrach, Meshach, and Abednego"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Amos",
+      "description": "Prophet and shepherd from Tekoa",
+      "facts": ["Shepherd and farmer", "Prophet to Israel", "Message of social justice", "Contemporary of Hosea"],
+      "appearances": [
+        {"book": "Amos", "chapter": 1, "verse": 1, "text": "The words of Amos, who was among the herdmen of Tekoa"},
+        {"book": "Amos", "chapter": 7, "verse": 14, "text": "I was no prophet, neither was I a prophet's son; but I was an herdman"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Hosea",
+      "description": "Prophet who married an unfaithful woman",
+      "facts": ["Married Gomer", "Illustrated God's love for Israel", "Prophesied to Northern Kingdom", "Message of redemption"],
+      "appearances": [
+        {"book": "Hosea", "chapter": 1, "verse": 2, "text": "The LORD said to Hosea, Go, take unto thee a wife of whoredoms"},
+        {"book": "Hosea", "chapter": 3, "verse": 1, "text": "Go yet, love a woman beloved of her friend"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Micah",
+      "description": "Prophet who foretold Messiah's birthplace",
+      "facts": ["Prophet to Judah", "Predicted Bethlehem birth", "Message of justice", "Contemporary of Isaiah"],
+      "appearances": [
+        {"book": "Micah", "chapter": 1, "verse": 1, "text": "The word of the LORD that came to Micah"},
+        {"book": "Micah", "chapter": 5, "verse": 2, "text": "But thou, Bethlehem Ephratah, out of thee shall he come forth"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Habakkuk",
+      "description": "Prophet who questioned God",
+      "facts": ["Questioned God's justice", "The just shall live by faith", "Waited for God's answer", "Prayer of praise"],
+      "appearances": [
+        {"book": "Habakkuk", "chapter": 1, "verse": 1, "text": "The burden which Habakkuk the prophet did see"},
+        {"book": "Habakkuk", "chapter": 2, "verse": 4, "text": "The just shall live by his faith"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Haggai",
+      "description": "Prophet who urged temple rebuilding",
+      "facts": ["Post-exilic prophet", "Urged temple rebuilding", "Contemporary of Zechariah", "Message of priorities"],
+      "appearances": [
+        {"book": "Haggai", "chapter": 1, "verse": 1, "text": "Came the word of the LORD by Haggai the prophet"},
+        {"book": "Haggai", "chapter": 2, "verse": 4, "text": "Be strong, and work: for I am with you"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Zechariah",
+      "description": "Prophet of restoration and Messiah",
+      "facts": ["Post-exilic prophet", "Visions of restoration", "Prophesied Messiah's coming", "Contemporary of Haggai"],
+      "appearances": [
+        {"book": "Zechariah", "chapter": 1, "verse": 1, "text": "Came the word of the LORD unto Zechariah"},
+        {"book": "Zechariah", "chapter": 9, "verse": 9, "text": "Behold, thy King cometh unto thee, lowly, and riding upon an ass"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Malachi",
+      "description": "Last prophet of Old Testament",
+      "facts": ["Final OT prophet", "Message of God's love", "Prophesied Elijah's return", "400 years before Jesus"],
+      "appearances": [
+        {"book": "Malachi", "chapter": 1, "verse": 1, "text": "The burden of the word of the LORD to Israel by Malachi"},
+        {"book": "Malachi", "chapter": 4, "verse": 5, "text": "Behold, I will send you Elijah the prophet"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Simeon",
+      "description": "Righteous man who blessed baby Jesus",
+      "facts": ["Waited for Messiah", "Holy Spirit upon him", "Saw baby Jesus", "Gave Nunc Dimittis"],
+      "appearances": [
+        {"book": "Luke", "chapter": 2, "verse": 25, "text": "There was a man in Jerusalem, whose name was Simeon"},
+        {"book": "Luke", "chapter": 2, "verse": 29, "text": "Lord, now lettest thou thy servant depart in peace"}
+      ],
+      "image": "placeholder"
+    },
+    {
+      "name": "Anna",
+      "description": "Prophetess who recognized baby Jesus",
+      "facts": ["Prophetess", "Widow of 84 years", "Never left temple", "Recognized Messiah"],
+      "appearances": [
+        {"book": "Luke", "chapter": 2, "verse": 36, "text": "There was one Anna, a prophetess"},
+        {"book": "Luke", "chapter": 2, "verse": 38, "text": "She gave thanks likewise unto the Lord"}
+      ],
+      "image": "placeholder"
+    }
+  ],
+  "bookGroups": [
+    {
+      "name": "Pentateuch",
+      "books": ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
+    },
+    {
+      "name": "Historical Books",
+      "books": ["Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther"]
+    },
+    {
+      "name": "Wisdom Literature",
+      "books": ["Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon"]
+    },
+    {
+      "name": "Major Prophets",
+      "books": ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel"]
+    },
+    {
+      "name": "Minor Prophets",
+      "books": ["Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"]
+    },
+    {
+      "name": "Gospels",
+      "books": ["Matthew", "Mark", "Luke", "John"]
+    },
+    {
+      "name": "Acts",
+      "books": ["Acts"]
+    },
+    {
+      "name": "Pauline Epistles",
+      "books": ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon"]
+    },
+    {
+      "name": "General Epistles",
+      "books": ["Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude"]
+    },
+    {
+      "name": "Revelation",
+      "books": ["Revelation"]
+    }
+  ]
+}

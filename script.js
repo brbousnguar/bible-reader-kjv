@@ -44,6 +44,7 @@ let books = [];
 let activeBook = null;
 let flatChapters = []; // flattened list of all chapters in order
 let bookMeta = {};
+let bookImages = {}; // Store fetched book images
 
 function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text) e.textContent = text; return e }
 
@@ -88,6 +89,9 @@ async function loadBooks(){
       booksList.innerHTML = '<p class="muted">Error loading books: ' + e.message + '</p>';
     }
   }
+  renderBooks();
+  // Fetch images for books
+  await fetchBookImages();
 }
 
 // populate voice selector and wire controls
@@ -134,42 +138,92 @@ function renderBooks(){
       if(category.testament) header.setAttribute('data-testament', category.testament);
       booksList.appendChild(header);
       
-      // Add books in this category
-      if(category.books && Array.isArray(category.books)) {
-        category.books.forEach(b => {
-          const btn = el('button','book-btn', b.name);
-          btn.addEventListener('click', ()=> {
-            showBookReview(b);
-          });
-          booksList.appendChild(btn);
-        });
-      }
+      // Add books in this category with images
+      category.books.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = 'book-btn';
+        
+        // Add image if available
+        if(bookImages[b.name]){
+          const img = document.createElement('img');
+          img.src = bookImages[b.name];
+          img.alt = b.name;
+          img.className = 'book-img';
+          img.onerror = function(){
+            this.style.display = 'none';
+          };
+          btn.appendChild(img);
+        } else {
+          // Add icon placeholder
+          const icon = document.createElement('span');
+          icon.className = 'book-icon';
+          icon.textContent = '📖';
+          btn.appendChild(icon);
+        }
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'book-name';
+        nameSpan.textContent = b.name;
+        btn.appendChild(nameSpan);
+        
+        btn.addEventListener('click', ()=> showBookReview(b));
+        booksList.appendChild(btn);
+      });
     });
   } else {
     // Fallback for old flat format
-    if(Array.isArray(books)) {
-      books.forEach(b => {
-        const btn = el('button','book-btn', b.name);
-        btn.addEventListener('click', ()=> {
-          showBookReview(b);
-        });
-        booksList.appendChild(btn);
-      });
-    }
+    books.forEach(b => {
+      const btn = document.createElement('button');
+      btn.className = 'book-btn';
+      
+      if(bookImages[b.name]){
+        const img = document.createElement('img');
+        img.src = bookImages[b.name];
+        img.alt = b.name;
+        img.className = 'book-img';
+        btn.appendChild(img);
+      } else {
+        const icon = document.createElement('span');
+        icon.className = 'book-icon';
+        icon.textContent = '📖';
+        btn.appendChild(icon);
+      }
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'book-name';
+      nameSpan.textContent = b.name;
+      btn.appendChild(nameSpan);
+      
+      btn.addEventListener('click', ()=> showBookReview(b));
+      booksList.appendChild(btn);
+    });
   }
 }
 
 // Show a quick review for the book in the main content area
 function showBookReview(book){
   activeBook = book;
-  document.querySelectorAll('.book-btn').forEach(n=> n.classList.toggle('active', n.textContent===book.name));
+  document.querySelectorAll('.book-btn').forEach(n=> n.classList.toggle('active', n.textContent.includes(book.name)));
   
   const meta = bookMeta && bookMeta[book.name];
   
-  // Build review HTML
+  // Get book image or use first letter as fallback
+  let imageHTML = '';
+  if(bookImages[book.name]){
+    imageHTML = `<img src="${bookImages[book.name]}" alt="${book.name}" class="book-review-img" onerror="this.style.display='none'; this.parentElement.textContent='${book.name.charAt(0).toUpperCase()}';">`;
+  } else {
+    imageHTML = book.name.charAt(0).toUpperCase();
+  }
+  
+  // Build review HTML with circular image
   let reviewHTML = `
     <div class="book-review">
-      <h2>${book.name} — Quick Review</h2>
+      <div class="book-review-header">
+        <div class="book-review-image">${imageHTML}</div>
+        <div class="book-review-title">
+          <h2>${book.name} — Quick Review</h2>
+        </div>
+      </div>
       <div class="review-section">
         <p><strong>Author:</strong> ${meta && meta.author ? meta.author : 'Traditionally attributed authorship varies'}</p>
         <p><strong>When:</strong> ${meta && meta.when ? meta.when : '—'}</p>
@@ -906,9 +960,18 @@ function showNotesPage(){
   
   if(mainContent) mainContent.style.display = 'none';
   if(mainSidebar) mainSidebar.style.display = 'none';
+  if(charactersPage){
+    charactersPage.hidden = true;
+    charactersPage.style.display = 'none';
+  }
   if(notesPage) {
     notesPage.hidden = false;
     notesPage.style.display = 'block';
+  }
+  // Restore container defaults for notes
+  if(mainContainer){
+    mainContainer.style.maxWidth = '';
+    mainContainer.style.padding = '';
   }
   renderNotes();
 }
@@ -917,13 +980,23 @@ function showReaderPage(){
   const mainContent = document.getElementById('mainContent');
   const mainSidebar = document.getElementById('mainSidebar');
   const notesPage = document.getElementById('notesPage');
+  const container = document.getElementById('mainContainer');
   
   if(notesPage) {
     notesPage.hidden = true;
     notesPage.style.display = 'none';
   }
+  if(charactersPage){
+    charactersPage.hidden = true;
+    charactersPage.style.display = 'none';
+  }
   if(mainContent) mainContent.style.display = 'block';
   if(mainSidebar) mainSidebar.style.display = 'block';
+  // Restore container defaults
+  if(container){
+    container.style.maxWidth = '';
+    container.style.padding = '';
+  }
 }
 
 function renderNotes(){
@@ -990,94 +1063,381 @@ if(saveNoteBtn) saveNoteBtn.addEventListener('click', saveNote);
 if(cancelNoteBtn) cancelNoteBtn.addEventListener('click', ()=>{ noteModal.hidden = true; currentNoteVerseId = null; });
 if(noteModal) noteModal.addEventListener('click', (e)=>{ if(e.target === noteModal){ noteModal.hidden = true; currentNoteVerseId = null; }});
 
-// Add spin animation for loading spinner
-if(!document.getElementById('loadingStyles')){
-  const style = document.createElement('style');
-  style.id = 'loadingStyles';
-  style.textContent = '@keyframes spin{to{transform:rotate(360deg);}}';
-  document.head.appendChild(style);
+// ---------------- Characters Feature ----------------
+let characters = [];
+let bookGroups = [];
+let filteredCharacters = [];
+
+const charactersPageBtn = document.getElementById('charactersPageBtn');
+const backToReaderFromCharacters = document.getElementById('backToReaderFromCharacters');
+const charactersPage = document.getElementById('charactersPage');
+const charactersList = document.getElementById('charactersList');
+const characterDetail = document.getElementById('characterDetail');
+const characterDetailContent = document.getElementById('characterDetailContent');
+const backToCharactersList = document.getElementById('backToCharactersList');
+const bookFilter = document.getElementById('bookFilter');
+
+async function loadCharacters(){
+  try{
+    const res = await fetch('characters.json');
+    const data = await res.json();
+    characters = data.characters || [];
+    bookGroups = data.bookGroups || [];
+    // Sort characters by number of appearances (most first)
+    characters.sort((a, b) => (b.appearances?.length || 0) - (a.appearances?.length || 0));
+    filteredCharacters = [...characters];
+    populateBookFilter();
+    // Automatically fetch images for characters that don't have one
+    await fetchCharacterImages();
+  }catch(e){
+    console.warn('Could not load characters', e);
+  }
 }
 
-// Enhanced button click feedback with ripple effect
-document.addEventListener('click', (e)=>{
-  if(e.target.matches('button, .book-btn, .chapter-btn, .nav-btn')){
-    // Ripple effect for primary buttons
-    if(e.target.matches('.btn-primary, .search button, .chapter-btn.active')){
-      const ripple = document.createElement('span');
-      const rect = e.target.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      const x = e.clientX - rect.left - size / 2;
-      const y = e.clientY - rect.top - size / 2;
+// Fetch images from Wikimedia Commons API
+async function fetchCharacterImages(){
+  const imageCacheKey = 'bible_character_images';
+  let imageCache = JSON.parse(localStorage.getItem(imageCacheKey) || '{}');
+  
+  for(let char of characters){
+    if(char.image === 'placeholder' || !char.image){
+      // Check cache first
+      if(imageCache[char.name]){
+        char.image = imageCache[char.name];
+        continue;
+      }
       
-      ripple.style.width = ripple.style.height = size + 'px';
-      ripple.style.left = x + 'px';
-      ripple.style.top = y + 'px';
-      ripple.style.position = 'absolute';
-      ripple.style.borderRadius = '50%';
-      ripple.style.background = 'rgba(255,255,255,0.4)';
-      ripple.style.transform = 'scale(0)';
-      ripple.style.animation = 'ripple 0.6s ease-out';
-      ripple.style.pointerEvents = 'none';
-      ripple.style.zIndex = '1000';
+      // Try to fetch from Wikimedia Commons
+      try{
+        const searchTerm = `${char.name} biblical`;
+        const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&titles=${encodeURIComponent(char.name)}&pithumbsize=400&origin=*`;
+        const response = await fetch(wikiUrl);
+        const wikiData = await response.json();
+        
+        const pages = wikiData.query?.pages;
+        if(pages){
+          const pageId = Object.keys(pages)[0];
+          const imageUrl = pages[pageId]?.thumbnail?.source;
+          
+          if(imageUrl && pageId !== '-1'){
+            char.image = imageUrl;
+            imageCache[char.name] = imageUrl;
+            localStorage.setItem(imageCacheKey, JSON.stringify(imageCache));
+            continue;
+          }
+        }
+        
+        // Fallback: Try Wikimedia Commons search
+        const commonsUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encodeURIComponent(searchTerm)}&srnamespace=6&srlimit=1&origin=*`;
+        const commonsResponse = await fetch(commonsUrl);
+        const commonsData = await commonsResponse.json();
+        
+        if(commonsData.query?.search?.[0]){
+          const fileName = commonsData.query.search[0].title;
+          const imageInfoUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&iiurlwidth=400&titles=${encodeURIComponent(fileName)}&origin=*`;
+          const imageInfoResponse = await fetch(imageInfoUrl);
+          const imageInfoData = await imageInfoResponse.json();
+          
+          const imagePages = imageInfoData.query?.pages;
+          if(imagePages){
+            const imagePageId = Object.keys(imagePages)[0];
+            const thumbUrl = imagePages[imagePageId]?.imageinfo?.[0]?.thumburl;
+            if(thumbUrl){
+              char.image = thumbUrl;
+              imageCache[char.name] = thumbUrl;
+              localStorage.setItem(imageCacheKey, JSON.stringify(imageCache));
+            }
+          }
+        }
+      }catch(e){
+        console.warn(`Could not fetch image for ${char.name}`, e);
+      }
       
-      const originalPosition = e.target.style.position;
-      const originalOverflow = e.target.style.overflow;
-      e.target.style.position = 'relative';
-      e.target.style.overflow = 'hidden';
-      e.target.appendChild(ripple);
-      
-      setTimeout(()=> {
-        ripple.remove();
-        e.target.style.position = originalPosition;
-        e.target.style.overflow = originalOverflow;
-      }, 600);
+      // Small delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
   }
-});
-
-// Add ripple animation
-if(!document.getElementById('rippleStyles')){
-  const style = document.createElement('style');
-  style.id = 'rippleStyles';
-  style.textContent = '@keyframes ripple{to{transform:scale(4);opacity:0;}}';
-  document.head.appendChild(style);
+  
+  // Update the display if we're on the characters page
+  if(charactersPage && !charactersPage.hidden){
+    renderCharactersList();
+  }
 }
 
-// Enhanced search input with visual feedback
-let searchTimeout;
-if(searchInput){
-  searchInput.addEventListener('input', ()=>{
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(()=>{
-      if(searchInput.value.trim().length > 2){
-        searchInput.style.borderColor = 'var(--accent)';
-        setTimeout(()=>{
-          if(document.activeElement !== searchInput){
-            searchInput.style.borderColor = '';
-          }
-        }, 2000);
-      }
-    }, 300);
+function populateBookFilter(){
+  if(!bookFilter) return;
+  bookFilter.innerHTML = '<option value="all">All Books</option>';
+  
+  // Add book groups
+  bookGroups.forEach(group => {
+    const opt = document.createElement('option');
+    opt.value = 'group:' + group.name;
+    opt.textContent = group.name;
+    bookFilter.appendChild(opt);
+  });
+  
+  // Add separator
+  const separator = document.createElement('option');
+  separator.disabled = true;
+  separator.textContent = '───────────';
+  bookFilter.appendChild(separator);
+  
+  // Add individual books (extract from characters' appearances)
+  const booksSet = new Set();
+  characters.forEach(char => {
+    char.appearances?.forEach(app => {
+      if(app.book) booksSet.add(app.book);
+    });
+  });
+  const booksList = Array.from(booksSet).sort();
+  booksList.forEach(book => {
+    const opt = document.createElement('option');
+    opt.value = 'book:' + book;
+    opt.textContent = book;
+    bookFilter.appendChild(opt);
   });
 }
 
-// Add keyboard shortcuts
-document.addEventListener('keydown', (e)=>{
-  // Escape to close modals
-  if(e.key === 'Escape'){
-    const noteModal = document.getElementById('noteModal');
-    if(noteModal && !noteModal.hasAttribute('hidden')){
-      noteModal.hidden = true;
-      currentNoteVerseId = null;
+function filterCharacters(filterValue){
+  if(filterValue === 'all'){
+    filteredCharacters = [...characters];
+  } else if(filterValue.startsWith('group:')){
+    const groupName = filterValue.replace('group:', '');
+    const group = bookGroups.find(g => g.name === groupName);
+    if(group){
+      filteredCharacters = characters.filter(char => {
+        return char.appearances?.some(app => group.books.includes(app.book));
+      });
     }
-    const reviewModal = document.getElementById('reviewModal');
-    if(reviewModal && !reviewModal.hasAttribute('hidden')){
-      reviewModal.hidden = true;
+  } else if(filterValue.startsWith('book:')){
+    const bookName = filterValue.replace('book:', '');
+    filteredCharacters = characters.filter(char => {
+      return char.appearances?.some(app => app.book === bookName);
+    });
+  }
+  renderCharactersList();
+}
+
+function renderCharactersList(){
+  if(!charactersList) return;
+  charactersList.innerHTML = '';
+  
+  if(filteredCharacters.length === 0){
+    charactersList.innerHTML = '<p class="no-characters">No characters found for this filter.</p>';
+    return;
+  }
+  
+  filteredCharacters.forEach(char => {
+    const card = el('div', 'character-card');
+    card.addEventListener('click', () => showCharacterDetail(char));
+    
+    // Circle image (with real image support or letter fallback)
+    const imageCircle = el('div', 'character-image');
+    if(char.image && char.image !== 'placeholder'){
+      const img = document.createElement('img');
+      img.src = char.image;
+      img.alt = char.name;
+      img.className = 'character-img';
+      img.onerror = function(){
+        // Fallback to letter if image fails to load
+        this.style.display = 'none';
+        imageCircle.textContent = char.name.charAt(0).toUpperCase();
+      };
+      imageCircle.appendChild(img);
+    } else {
+      imageCircle.textContent = char.name.charAt(0).toUpperCase();
+    }
+    
+    // Character name
+    const name = el('div', 'character-name', char.name);
+    
+    // Appearance count
+    const count = el('div', 'character-count', `${char.appearances?.length || 0} appearances`);
+    
+    card.appendChild(imageCircle);
+    card.appendChild(name);
+    card.appendChild(count);
+    charactersList.appendChild(card);
+  });
+}
+
+function showCharacterDetail(char){
+  if(!characterDetail || !characterDetailContent) return;
+  
+  let imageHTML = '';
+  if(char.image && char.image !== 'placeholder'){
+    imageHTML = `<img src="${char.image}" alt="${char.name}" class="character-img" onerror="this.style.display='none'; this.parentElement.textContent='${char.name.charAt(0).toUpperCase()}';">`;
+  } else {
+    imageHTML = char.name.charAt(0).toUpperCase();
+  }
+  
+  let detailHTML = `
+    <div class="character-detail-header">
+      <div class="character-detail-image">${imageHTML}</div>
+      <div class="character-detail-title">
+        <h2>${char.name}</h2>
+        <p class="character-detail-count">${char.appearances?.length || 0} appearances in the Bible</p>
+      </div>
+    </div>
+    
+    <div class="character-section">
+      <h3>Description</h3>
+      <p>${char.description || 'No description available.'}</p>
+    </div>
+    
+    <div class="character-section">
+      <h3>Key Facts</h3>
+      <ul class="character-facts">
+        ${char.facts?.map(fact => `<li>${fact}</li>`).join('') || '<li>No facts available.</li>'}
+      </ul>
+    </div>
+    
+    <div class="character-section">
+      <h3>Bible Appearances</h3>
+      <div class="character-appearances">
+        ${char.appearances?.map(app => `
+          <div class="appearance-item" data-book="${app.book}" data-chapter="${app.chapter}" data-verse="${app.verse}">
+            <div class="appearance-ref">${app.book} ${app.chapter}:${app.verse}</div>
+            <div class="appearance-text">"${app.text}"</div>
+          </div>
+        `).join('') || '<p>No appearances recorded.</p>'}
+      </div>
+    </div>
+  `;
+  
+  characterDetailContent.innerHTML = detailHTML;
+  charactersList.style.display = 'none';
+  characterDetail.hidden = false;
+  
+  // Add click handlers to appearance items to navigate to verses
+  document.querySelectorAll('.appearance-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const book = item.getAttribute('data-book');
+      const chapter = parseInt(item.getAttribute('data-chapter'));
+      const verse = parseInt(item.getAttribute('data-verse'));
+      
+      // Go back to reader and load the chapter
+      showReaderPage();
+      fetchChapter(book, chapter);
+      
+      // Scroll to the specific verse after a delay
+      setTimeout(() => {
+        const bookSlug = slugify(book);
+        const verseId = `verse-${bookSlug}-${chapter}-${verse}`;
+        const verseEl = document.getElementById(verseId);
+        if(verseEl){
+          verseEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+          verseEl.classList.add('highlight');
+          setTimeout(() => verseEl.classList.remove('highlight'), 3000);
+        }
+      }, 800);
+    });
+  });
+}
+
+function showCharactersPage(){
+  const mainContent = document.getElementById('mainContent');
+  const mainSidebar = document.getElementById('mainSidebar');
+  const notesPage = document.getElementById('notesPage');
+  const container = document.getElementById('mainContainer');
+  
+  if(mainContent) mainContent.style.display = 'none';
+  if(mainSidebar) mainSidebar.style.display = 'none';
+  if(notesPage){
+    notesPage.hidden = true;
+    notesPage.style.display = 'none';
+  }
+  if(charactersPage){
+    charactersPage.hidden = false;
+    charactersPage.style.display = 'block';
+  }
+  // Expand container for characters page
+  if(container){
+    container.style.maxWidth = '100%';
+    container.style.padding = '0';
+  }
+  
+  // Reset to characters list view
+  if(charactersList) charactersList.style.display = 'grid';
+  if(characterDetail) characterDetail.hidden = true;
+  
+  renderCharactersList();
+}
+
+if(charactersPageBtn){
+  charactersPageBtn.addEventListener('click', showCharactersPage);
+}
+
+if(backToReaderFromCharacters){
+  backToReaderFromCharacters.addEventListener('click', showReaderPage);
+}
+
+if(backToCharactersList){
+  backToCharactersList.addEventListener('click', () => {
+    if(charactersList) charactersList.style.display = 'grid';
+    if(characterDetail) characterDetail.hidden = true;
+  });
+}
+
+if(bookFilter){
+  bookFilter.addEventListener('change', (e) => {
+    filterCharacters(e.target.value);
+  });
+}
+
+// Fetch images for Bible books from Wikipedia
+async function fetchBookImages(){
+  const imageCacheKey = 'bible_book_images';
+  bookImages = JSON.parse(localStorage.getItem(imageCacheKey) || '{}');
+  
+  const allBooks = [];
+  if(books.categories || books[0]?.books){
+    const categories = books.categories || books;
+    categories.forEach(category => {
+      category.books?.forEach(b => allBooks.push(b));
+    });
+  } else {
+    allBooks.push(...books);
+  }
+  
+  let needsUpdate = false;
+  
+  for(let book of allBooks){
+    if(!bookImages[book.name]){
+      try{
+        // Search Wikipedia for "Book of [Name]" or just the book name
+        const searchTerm = book.name.includes('Psalm') ? 'Book of Psalms' : 
+                          book.name.includes('Song') ? 'Song of Solomon' :
+                          `Book of ${book.name}`;
+        
+        const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&titles=${encodeURIComponent(searchTerm)}&pithumbsize=200&origin=*`;
+        const response = await fetch(wikiUrl);
+        const wikiData = await response.json();
+        
+        const pages = wikiData.query?.pages;
+        if(pages){
+          const pageId = Object.keys(pages)[0];
+          const imageUrl = pages[pageId]?.thumbnail?.source;
+          
+          if(imageUrl && pageId !== '-1'){
+            bookImages[book.name] = imageUrl;
+            needsUpdate = true;
+          }
+        }
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }catch(e){
+        console.warn(`Could not fetch image for ${book.name}`, e);
+      }
     }
   }
-  // Ctrl/Cmd + K to focus search
-  if((e.ctrlKey || e.metaKey) && e.key === 'k'){
-    e.preventDefault();
-    if(searchInput) searchInput.focus();
+  
+  if(needsUpdate){
+    localStorage.setItem(imageCacheKey, JSON.stringify(bookImages));
+    renderBooks(); // Re-render to show images
   }
-});
+}
+
+// Load characters data on startup
+loadCharacters();
