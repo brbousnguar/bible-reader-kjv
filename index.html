@@ -6,22 +6,256 @@
   <title>Bible Reader — KJV</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Hero video styles (small, self-contained rules) */
-    .hero { position: relative; width: 100%; overflow: hidden; background: #000; }
-    .hero-video { width: 100%; height: 52vh; min-height: 260px; object-fit: cover; display: block; }
-    .hero-overlay { position: absolute; top: 50%; left: 6%; transform: translateY(-50%); color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.7); z-index: 2; }
-    .hero-content { display: flex; flex-direction: column; gap: 12px; max-width: 600px; }
-    .hero-icon { font-size: 3.5rem; margin-bottom: 8px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
-    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-    .hero-overlay h2 { margin: 0; font-size: 2.2rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
-    .hero-divider { width: 80px; height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0.3)); border-radius: 2px; margin: 8px 0; }
-    .hero-overlay p { margin: 0; font-size: 1.1rem; opacity: 0.95; line-height: 1.5; }
-    .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
-    @media (max-width: 720px){ 
-      .hero-overlay { left: 4%; top: 45%; }
-      .hero-overlay h2 { font-size: 1.5rem; }
-      .hero-overlay p { font-size: 0.95rem; }
-      .hero-icon { font-size: 2.5rem; }
+    /* Modern Hero Video Styles */
+    .hero { 
+      position: relative; 
+      width: 100%; 
+      overflow: hidden; 
+      background: #1a1a1a;
+      min-height: 60vh;
+      max-height: 75vh;
+      display: flex;
+      align-items: center;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(43,27,14,0.75) 0%, rgba(0,0,0,0.5) 50%, rgba(43,27,14,0.4) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    .hero-video { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      display: block;
+      filter: brightness(0.6) contrast(1.1);
+      transition: filter 0.3s ease;
+    }
+    
+    .hero:hover .hero-video {
+      filter: brightness(0.7) contrast(1.15);
+    }
+    
+    .hero-overlay { 
+      position: absolute; 
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 5%;
+      z-index: 2;
+      color: #fff;
+    }
+    
+    .hero-content { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 20px; 
+      max-width: 650px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .hero-icon { 
+      font-size: 4rem; 
+      margin-bottom: 4px; 
+      animation: float 4s ease-in-out infinite; 
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+      opacity: 0.95;
+    }
+    
+    @keyframes float { 
+      0%, 100% { transform: translateY(0px) rotate(0deg); } 
+      50% { transform: translateY(-12px) rotate(2deg); } 
+    }
+    
+    .hero-overlay h2 { 
+      margin: 0; 
+      font-size: clamp(2rem, 5vw, 3rem); 
+      font-weight: 700; 
+      line-height: 1.2; 
+      letter-spacing: -0.02em;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    
+    .hero-divider { 
+      width: 100px; 
+      height: 4px; 
+      background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4)); 
+      border-radius: 2px; 
+      margin: 4px 0 8px 0;
+    }
+    
+    .hero-overlay p { 
+      margin: 0; 
+      font-size: clamp(1rem, 2vw, 1.25rem); 
+      opacity: 0.95; 
+      line-height: 1.6;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      max-width: 90%;
+    }
+    
+    .hero-cta {
+      margin-top: 8px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .hero-btn {
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero-btn:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    .hero-btn-primary {
+      background: rgba(139,94,52,0.9);
+      border-color: rgba(139,94,52,1);
+    }
+    
+    .hero-btn-primary:hover {
+      background: rgba(139,94,52,1);
+      box-shadow: 0 6px 20px rgba(139,94,52,0.4);
+    }
+    
+    .hero-controls {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 3;
+    }
+    
+    .hero-control-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+    
+    .hero-control-btn:hover {
+      background: rgba(0,0,0,0.7);
+      border-color: rgba(255,255,255,0.5);
+      transform: scale(1.1);
+    }
+    
+    .visually-hidden { 
+      position: absolute !important; 
+      height: 1px; 
+      width: 1px; 
+      overflow: hidden; 
+      clip: rect(1px, 1px, 1px, 1px); 
+      white-space: nowrap; 
+    }
+    
+    @media (max-width: 980px) {
+      .hero {
+        min-height: 50vh;
+        max-height: 65vh;
+      }
+      .hero-overlay {
+        padding: 0 4%;
+      }
+      .hero-content {
+        gap: 16px;
+      }
+      .hero-icon {
+        font-size: 3rem;
+      }
+      .hero-controls {
+        bottom: 15px;
+        right: 15px;
+      }
+      .hero-control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+    }
+    
+    @media (max-width: 720px) { 
+      .hero {
+        min-height: 45vh;
+        max-height: 55vh;
+      }
+      .hero-overlay {
+        padding: 0 20px;
+      }
+      .hero-content {
+        gap: 12px;
+      }
+      .hero-overlay p {
+        max-width: 100%;
+      }
+      .hero-cta {
+        flex-direction: column;
+        width: 100%;
+      }
+      .hero-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .hero-controls {
+        bottom: 10px;
+        right: 10px;
+        gap: 8px;
+      }
+      .hero-control-btn {
+        width: 36px;
+        height: 36px;
+      }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .hero-video,
+      .hero-icon,
+      .hero-content {
+        animation: none;
+      }
     }
   </style>
 </head>
@@ -109,18 +343,34 @@
   <section id="hero" class="hero" aria-labelledby="heroTitle">
     <figure>
       <video id="heroVideo" class="hero-video" autoplay muted loop playsinline preload="metadata" aria-describedby="heroDesc" width="1920" height="1080">
-  <source src="videos/bible_scenes_1080p.mp4" type="video/mp4">
+        <source src="videos/bible_scenes_1080p.mp4" type="video/mp4">
         <!-- Fallback message -->
         Your browser does not support HTML5 video.
       </video>
       <figcaption id="heroDesc" class="visually-hidden">HD looping montage of classical monuments rendered in Renaissance painting style. Muted autoplay background video.</figcaption>
     </figure>
+    
+    <!-- Video Controls -->
+    <div class="hero-controls">
+      <button id="heroPlayPause" class="hero-control-btn" aria-label="Pause video" title="Pause/Play video">
+        <span id="playPauseIcon">⏸</span>
+      </button>
+      <button id="heroMute" class="hero-control-btn" aria-label="Unmute video" title="Mute/Unmute video">
+        <span id="muteIcon">🔊</span>
+      </button>
+    </div>
+    
+    <!-- Hero Content Overlay -->
     <div class="hero-overlay">
       <div class="hero-content">
         <div class="hero-icon">📖</div>
         <h2 id="heroTitle">Welcome to Bible Reader</h2>
         <div class="hero-divider"></div>
-        <p>Explore the King James Version — read, listen, and save your notes.</p>
+        <p>Explore the King James Version — read, listen, and save your notes. Discover 100+ biblical characters, search verses, and deepen your understanding.</p>
+        <div class="hero-cta">
+          <button class="hero-btn hero-btn-primary" id="startReadingBtn">Start Reading</button>
+          <button class="hero-btn" onclick="document.getElementById('charactersPageBtn').click()">Explore Characters</button>
+        </div>
       </div>
     </div>
   </section>
