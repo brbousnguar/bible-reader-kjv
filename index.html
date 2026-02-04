@@ -9,29 +9,54 @@
     /* Hero video styles (small, self-contained rules) */
     .hero { position: relative; width: 100%; overflow: hidden; background: #000; }
     .hero-video { width: 100%; height: 52vh; min-height: 260px; object-fit: cover; display: block; }
-    .hero-overlay { position: absolute; top: 12%; left: 6%; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
-    .hero-overlay h2 { margin: 0 0 .25rem; font-size: 1.8rem; }
+    .hero-overlay { position: absolute; top: 50%; left: 6%; transform: translateY(-50%); color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.7); z-index: 2; }
+    .hero-content { display: flex; flex-direction: column; gap: 12px; max-width: 600px; }
+    .hero-icon { font-size: 3.5rem; margin-bottom: 8px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+    .hero-overlay h2 { margin: 0; font-size: 2.2rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+    .hero-divider { width: 80px; height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0.3)); border-radius: 2px; margin: 8px 0; }
+    .hero-overlay p { margin: 0; font-size: 1.1rem; opacity: 0.95; line-height: 1.5; }
     .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
-    @media (max-width: 720px){ .hero-overlay h2 { font-size: 1.25rem; } }
+    @media (max-width: 720px){ 
+      .hero-overlay { left: 4%; top: 45%; }
+      .hero-overlay h2 { font-size: 1.5rem; }
+      .hero-overlay p { font-size: 0.95rem; }
+      .hero-icon { font-size: 2.5rem; }
+    }
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="header-left">
-      <h1>Bible Reader</h1>
-      <span class="subtitle">King James Version</span>
+      <div class="logo-container">
+        <div class="logo-icon">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 20 L50 10 L80 20 L80 80 L50 90 L20 80 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path d="M35 30 L35 70 M50 30 L50 70 M65 30 L65 70" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="50" cy="50" r="8" fill="currentColor" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1><span class="logo-main">Bible</span> <span class="logo-accent">Reader</span></h1>
+          <span class="subtitle">
+            <span class="subtitle-icon">✝</span>
+            <span>King James Version</span>
+            <span class="subtitle-icon">✝</span>
+          </span>
+        </div>
+      </div>
     </div>
     
     <div class="header-center">
       <div class="search">
-        <input id="searchInput" placeholder="Search (e.g. John 3, John 3:16, or 'faith')" />
-        <button id="searchBtn">Search</button>
+        <input id="searchInput" placeholder="Search (e.g. John 3, John 3:16, or 'faith')" aria-label="Search Bible" />
+        <button id="searchBtn" aria-label="Search">Search</button>
       </div>
     </div>
     
     <div class="header-right">
-      <button id="notesPageBtn" class="nav-btn">📝 Notes</button>
-      <button id="settingsBtn" class="nav-btn settings-btn" title="Voice & TTS Settings">⚙️ Settings</button>
+      <button id="notesPageBtn" class="nav-btn" aria-label="View Notes">📝 Notes</button>
+      <button id="settingsBtn" class="nav-btn settings-btn" title="Voice & TTS Settings" aria-label="Settings">⚙️ Settings</button>
     </div>
   </header>
     <!-- Settings Panel (collapsible) -->
@@ -90,8 +115,12 @@
       <figcaption id="heroDesc" class="visually-hidden">HD looping montage of classical monuments rendered in Renaissance painting style. Muted autoplay background video.</figcaption>
     </figure>
     <div class="hero-overlay">
-      <h2 id="heroTitle">Welcome to Bible Reader</h2>
-      <p>Explore the King James Version — read, listen, and save your notes.</p>
+      <div class="hero-content">
+        <div class="hero-icon">📖</div>
+        <h2 id="heroTitle">Welcome to Bible Reader</h2>
+        <div class="hero-divider"></div>
+        <p>Explore the King James Version — read, listen, and save your notes.</p>
+      </div>
     </div>
   </section>
 
@@ -102,11 +131,11 @@
 
     <main class="content" id="mainContent">
 
-      <div id="chapterPicker" class="chapters"></div>
-      <div id="chapterControls" class="chapter-controls">
-        <button id="readChapterBtn" class="chapter-action">Read Chapter ▶</button>
-        <button id="pauseChapterBtn" class="chapter-action">Pause ⏸</button>
-        <button id="stopChapterBtn" class="chapter-action">Stop ⏹</button>
+      <div id="chapterPicker" class="chapters" role="group" aria-label="Chapter selection"></div>
+      <div id="chapterControls" class="chapter-controls" role="group" aria-label="Chapter playback controls">
+        <button id="readChapterBtn" class="chapter-action" aria-label="Read entire chapter">▶ Read Chapter</button>
+        <button id="pauseChapterBtn" class="chapter-action" aria-label="Pause playback">⏸ Pause</button>
+        <button id="stopChapterBtn" class="chapter-action" aria-label="Stop playback">⏹ Stop</button>
       </div>
 
       <section id="searchResults" class="search-results" aria-live="polite" hidden>
@@ -128,10 +157,10 @@
     </section>
   </div>
 
-  <div id="noteModal" class="modal" hidden>
+    <div id="noteModal" class="modal" hidden role="dialog" aria-labelledby="noteModalTitle" aria-modal="true">
     <div class="modal-content">
       <h3 id="noteModalTitle">Add Note</h3>
-      <textarea id="noteInput" placeholder="Enter your note..." rows="4"></textarea>
+      <textarea id="noteInput" placeholder="Enter your note..." rows="4" aria-label="Note text"></textarea>
       <div class="modal-actions">
         <button id="saveNoteBtn" class="btn-primary">Save</button>
         <button id="cancelNoteBtn" class="btn-secondary">Cancel</button>
@@ -139,7 +168,7 @@
     </div>
   </div>
 
-    <div id="reviewModal" class="modal" hidden>
+    <div id="reviewModal" class="modal" hidden role="dialog" aria-labelledby="reviewTitle" aria-modal="true">
       <div class="modal-content">
         <h3 id="reviewTitle">Book Review</h3>
         <div id="reviewBody">
@@ -155,7 +184,13 @@
       </div>
     </div>
 
-  <footer class="footer">Using the public-domain King James Version (KJV) via <a href="https://bible-api.com/">bible-api.com</a>.</footer>
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-divider"></div>
+      <p>Using the public-domain King James Version (KJV) via <a href="https://bible-api.com/">bible-api.com</a></p>
+      <div class="footer-verse">"Thy word is a lamp unto my feet, and a light unto my path." — Psalm 119:105</div>
+    </div>
+  </footer>
 
   <script src="script.js"></script>
 </body>

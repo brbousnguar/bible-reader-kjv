@@ -205,7 +205,8 @@ function renderChapters(book){
 async function fetchChapter(book, chapter, btn){
   if(btn) document.querySelectorAll('.chapter-btn').forEach(n=> n.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  versesEl.innerHTML = '<p class="muted">Loading...</p>';
+  // Enhanced loading state
+  versesEl.innerHTML = '<div class="muted" style="text-align:center;padding:40px;"><div style="display:inline-block;width:40px;height:40px;border:4px solid rgba(139,94,52,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;"></div><p style="margin-top:16px;">Loading chapter...</p></div>';
   try{
     const ref = `${book} ${chapter}`;
     const url = `https://bible-api.com/${encodeURIComponent(ref)}?translation=kjv`;
@@ -222,15 +223,24 @@ function displayVerses(data){
   versesEl.innerHTML = '';
   if(data.reference) {
     const h = el('h2', null, data.reference);
+    h.style.opacity = '0';
+    h.style.transform = 'translateY(-10px)';
     versesEl.appendChild(h);
+    setTimeout(()=>{
+      h.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      h.style.opacity = '1';
+      h.style.transform = 'translateY(0)';
+    }, 50);
   }
   if(data.verses && data.verses.length){
     // store lastChapter for chapter playback
     lastChapter = { book: data.book_name || (data.reference||'').split(' ')[0], chapter: data.chapter || null, verses: data.verses };
-    data.verses.forEach(v=>{
+    data.verses.forEach((v, index)=>{
       const id = `verse-${slugify(data.book_name || data.reference || '')}-${data.chapter || ''}-${v.verse}`;
       const p = el('p','verse');
       p.id = id;
+      p.style.opacity = '0';
+      p.style.transform = 'translateY(10px)';
       // play button
       const play = el('button','play-btn');
       play.setAttribute('aria-label', `Play verse ${v.verse}`);
@@ -263,6 +273,12 @@ function displayVerses(data){
       });
       p.appendChild(textNode);
       versesEl.appendChild(p);
+      // Staggered fade-in animation
+      setTimeout(()=>{
+        p.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        p.style.opacity = '1';
+        p.style.transform = 'translateY(0)';
+      }, 50 + (index * 20));
     })
   } else if(data.text){
     versesEl.textContent = data.text;
@@ -796,3 +812,95 @@ if(backToReader) backToReader.addEventListener('click', showReaderPage);
 if(saveNoteBtn) saveNoteBtn.addEventListener('click', saveNote);
 if(cancelNoteBtn) cancelNoteBtn.addEventListener('click', ()=>{ noteModal.hidden = true; currentNoteVerseId = null; });
 if(noteModal) noteModal.addEventListener('click', (e)=>{ if(e.target === noteModal){ noteModal.hidden = true; currentNoteVerseId = null; }});
+
+// Add spin animation for loading spinner
+if(!document.getElementById('loadingStyles')){
+  const style = document.createElement('style');
+  style.id = 'loadingStyles';
+  style.textContent = '@keyframes spin{to{transform:rotate(360deg);}}';
+  document.head.appendChild(style);
+}
+
+// Enhanced button click feedback with ripple effect
+document.addEventListener('click', (e)=>{
+  if(e.target.matches('button, .book-btn, .chapter-btn, .nav-btn')){
+    // Ripple effect for primary buttons
+    if(e.target.matches('.btn-primary, .search button, .chapter-btn.active')){
+      const ripple = document.createElement('span');
+      const rect = e.target.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      ripple.style.position = 'absolute';
+      ripple.style.borderRadius = '50%';
+      ripple.style.background = 'rgba(255,255,255,0.4)';
+      ripple.style.transform = 'scale(0)';
+      ripple.style.animation = 'ripple 0.6s ease-out';
+      ripple.style.pointerEvents = 'none';
+      ripple.style.zIndex = '1000';
+      
+      const originalPosition = e.target.style.position;
+      const originalOverflow = e.target.style.overflow;
+      e.target.style.position = 'relative';
+      e.target.style.overflow = 'hidden';
+      e.target.appendChild(ripple);
+      
+      setTimeout(()=> {
+        ripple.remove();
+        e.target.style.position = originalPosition;
+        e.target.style.overflow = originalOverflow;
+      }, 600);
+    }
+  }
+});
+
+// Add ripple animation
+if(!document.getElementById('rippleStyles')){
+  const style = document.createElement('style');
+  style.id = 'rippleStyles';
+  style.textContent = '@keyframes ripple{to{transform:scale(4);opacity:0;}}';
+  document.head.appendChild(style);
+}
+
+// Enhanced search input with visual feedback
+let searchTimeout;
+if(searchInput){
+  searchInput.addEventListener('input', ()=>{
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(()=>{
+      if(searchInput.value.trim().length > 2){
+        searchInput.style.borderColor = 'var(--accent)';
+        setTimeout(()=>{
+          if(document.activeElement !== searchInput){
+            searchInput.style.borderColor = '';
+          }
+        }, 2000);
+      }
+    }, 300);
+  });
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e)=>{
+  // Escape to close modals
+  if(e.key === 'Escape'){
+    const noteModal = document.getElementById('noteModal');
+    if(noteModal && !noteModal.hasAttribute('hidden')){
+      noteModal.hidden = true;
+      currentNoteVerseId = null;
+    }
+    const reviewModal = document.getElementById('reviewModal');
+    if(reviewModal && !reviewModal.hasAttribute('hidden')){
+      reviewModal.hidden = true;
+    }
+  }
+  // Ctrl/Cmd + K to focus search
+  if((e.ctrlKey || e.metaKey) && e.key === 'k'){
+    e.preventDefault();
+    if(searchInput) searchInput.focus();
+  }
+});
