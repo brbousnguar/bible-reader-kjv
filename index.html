@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bible Reader — KJV</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Hero video styles (small, self-contained rules) */
+    .hero { position: relative; width: 100%; overflow: hidden; background: #000; }
+    .hero-video { width: 100%; height: 52vh; min-height: 260px; object-fit: cover; display: block; }
+    .hero-overlay { position: absolute; top: 12%; left: 6%; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+    .hero-overlay h2 { margin: 0 0 .25rem; font-size: 1.8rem; }
+    .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
+    @media (max-width: 720px){ .hero-overlay h2 { font-size: 1.25rem; } }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -25,8 +34,7 @@
       <button id="settingsBtn" class="nav-btn settings-btn" title="Voice & TTS Settings">⚙️ Settings</button>
     </div>
   </header>
-
-  <!-- Settings Panel (collapsible) -->
+    <!-- Settings Panel (collapsible) -->
   <div id="settingsPanel" class="settings-panel" hidden>
     <div class="settings-content">
       <div class="settings-section">
@@ -70,6 +78,22 @@
       </div>
     </div>
   </div>
+
+  <!-- Hero video (local HD) -->
+  <section id="hero" class="hero" aria-labelledby="heroTitle">
+    <figure>
+      <video id="heroVideo" class="hero-video" autoplay muted loop playsinline preload="metadata" aria-describedby="heroDesc" width="1920" height="1080">
+  <source src="videos/bible_scenes_1080p.mp4" type="video/mp4">
+        <!-- Fallback message -->
+        Your browser does not support HTML5 video.
+      </video>
+      <figcaption id="heroDesc" class="visually-hidden">HD looping montage of classical monuments rendered in Renaissance painting style. Muted autoplay background video.</figcaption>
+    </figure>
+    <div class="hero-overlay">
+      <h2 id="heroTitle">Welcome to Bible Reader</h2>
+      <p>Explore the King James Version — read, listen, and save your notes.</p>
+    </div>
+  </section>
 
   <div class="container" id="mainContainer">
     <aside class="sidebar" id="mainSidebar">
