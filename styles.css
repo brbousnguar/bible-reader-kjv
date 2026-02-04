@@ -92,6 +92,17 @@ body::before{
   display:flex;
   align-items:center;
   gap:14px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.logo-container:hover{
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+.logo-container:active{
+  transform: scale(0.98);
 }
 
 .logo-icon{
@@ -213,6 +224,89 @@ body::before{
   display:flex;
   gap:10px;
   align-items:center;
+}
+
+/* Translation Selector */
+.translation-selector{
+  position:relative;
+}
+
+.translation-select{
+  padding:10px 14px;
+  padding-right:32px;
+  border-radius:10px;
+  border:2px solid rgba(0,0,0,0.08);
+  background:var(--surface);
+  color:var(--text);
+  font-size:0.9rem;
+  font-weight:500;
+  cursor:pointer;
+  transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b5e34' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  background-size:12px;
+}
+
+.translation-select:hover{
+  border-color:var(--accent);
+  box-shadow:0 2px 8px rgba(139,94,52,0.1);
+}
+
+.translation-select:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 2px 8px rgba(139,94,52,0.15);
+}
+
+/* RTL Support */
+[dir="rtl"] .header-right{
+  flex-direction:row-reverse;
+}
+
+[dir="rtl"] .translation-select{
+  padding-left:32px;
+  padding-right:14px;
+  background-position:left 10px center;
+}
+
+[dir="rtl"] .verse{
+  text-align:right;
+}
+
+[dir="rtl"] .verse-num{
+  margin-left:14px;
+  margin-right:0;
+}
+
+[dir="rtl"] .play-btn,
+[dir="rtl"] .note-btn{
+  margin-right:0;
+  margin-left:10px;
+}
+
+[dir="rtl"] .book-btn.active{
+  border-left:none;
+  border-right:4px solid var(--accent);
+  padding-right:18px;
+  padding-left:14px;
+}
+
+[dir="rtl"] .book-btn:hover{
+  transform:translateX(-4px);
+}
+
+[dir="rtl"] .sidebar::before{
+  left:0;
+  right:auto;
+  border-radius:16px 0 0 16px;
+}
+
+[dir="rtl"] .verses::before{
+  right:0;
+  left:auto;
+  border-radius:0 2px 2px 0;
 }
 
 /* Enhanced Navigation Buttons */
