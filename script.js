@@ -1,19 +1,39 @@
+// Set KJV as default version
+localStorage.setItem('bible_version', 'kjv');
+localStorage.setItem('bible_version_selected', 'true');
+
 const booksUrl = 'books.json';
-const booksList = document.getElementById('booksList');
-const chapterPicker = document.getElementById('chapterPicker');
-const versesEl = document.getElementById('verses');
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const voiceSelect = document.getElementById('voiceSelect');
-const rateRange = document.getElementById('rateRange');
-const pitchRange = document.getElementById('pitchRange');
-const cloudToggle = document.getElementById('cloudToggle');
-const cloudProvider = document.getElementById('cloudProvider');
-const cloudVoice = document.getElementById('cloudVoice');
-const settingsBtn = document.getElementById('settingsBtn');
-const settingsPanel = document.getElementById('settingsPanel');
-const rateValue = document.getElementById('rateValue');
-const pitchValue = document.getElementById('pitchValue');
+let booksList, chapterPicker, versesEl, searchInput, searchBtn;
+let voiceSelect, rateRange, pitchRange, cloudToggle, cloudProvider, cloudVoice;
+let settingsBtn, settingsPanel, rateValue, pitchValue, translationSelect;
+
+// Bible Version configuration - King James Version only
+const bibleVersions = {
+  kjv: { 
+    code: 'kjv', 
+    name: 'King James Version', 
+    displayName: 'KJV (English)',
+    apiBase: 'https://bible-api.com',
+    apiMethod: 'bible-api'
+  }
+};
+
+// API helper functions
+function getApiUrl(book, chapter, version){
+  const v = bibleVersions[version] || bibleVersions.kjv;
+  
+  if(v.apiMethod === 'bible-api'){
+    // bible-api.com format: https://bible-api.com/Genesis%201?translation=kjv
+    const ref = `${book} ${chapter}`;
+    return `${v.apiBase}/${encodeURIComponent(ref)}?translation=${v.code}`;
+  }
+  
+  // Can add other API formats here in the future
+  return null;
+}
+
+// Always use KJV
+const currentBibleVersion = bibleVersions.kjv;
 
 // Notes & highlights state
 let notes = JSON.parse(localStorage.getItem('bible_notes') || '[]');
@@ -28,29 +48,46 @@ let bookMeta = {};
 function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text) e.textContent = text; return e }
 
 async function loadBooks(){
-  const res = await fetch(booksUrl);
-  const data = await res.json();
-  books = data.categories || data; // Support both old and new format
-  // try to load book metadata for quick reviews
-  try{
-    fetch('book_meta.json').then(r=> r.ok ? r.json() : {}).then(m=>{ bookMeta = m || {}; }).catch(()=>{});
-  }catch(e){/*ignore*/}
-  // build flat chapters array
-  flatChapters = [];
-  if(data.categories){
-    // New categorized format
-    data.categories.forEach(cat=>{
-      cat.books.forEach(b=>{
+  if(!booksList) {
+    console.error('booksList is null in loadBooks!');
+    return;
+  }
+  
+  try {
+    const res = await fetch(booksUrl);
+    if(!res.ok) {
+      console.error('Failed to load books.json:', res.status);
+      booksList.innerHTML = '<p class="muted">Failed to load books. Please refresh the page.</p>';
+      return;
+    }
+    const data = await res.json();
+    books = data.categories || data; // Support both old and new format
+    // try to load book metadata for quick reviews
+    try{
+      fetch('book_meta.json').then(r=> r.ok ? r.json() : {}).then(m=>{ bookMeta = m || {}; }).catch(()=>{});
+    }catch(e){/*ignore*/}
+    // build flat chapters array
+    flatChapters = [];
+    if(data.categories){
+      // New categorized format
+      data.categories.forEach(cat=>{
+        cat.books.forEach(b=>{
+          for(let i=1;i<=b.chapters;i++) flatChapters.push({book: b.name, chapter: i});
+        });
+      });
+    } else {
+      // Old flat format fallback
+      books.forEach(b=>{
         for(let i=1;i<=b.chapters;i++) flatChapters.push({book: b.name, chapter: i});
       });
-    });
-  } else {
-    // Old flat format fallback
-    books.forEach(b=>{
-      for(let i=1;i<=b.chapters;i++) flatChapters.push({book: b.name, chapter: i});
-    });
+    }
+    renderBooks();
+  } catch(e) {
+    console.error('Error loading books:', e);
+    if(booksList) {
+      booksList.innerHTML = '<p class="muted">Error loading books: ' + e.message + '</p>';
+    }
   }
-  renderBooks();
 }
 
 // populate voice selector and wire controls
@@ -73,48 +110,22 @@ function populateVoiceList(){
   pitchRange.value = p;
 }
 
-if(window.speechSynthesis){
-  populateVoiceList();
-  speechSynthesis.addEventListener('voiceschanged', populateVoiceList);
-}
-
-if(voiceSelect){
-  voiceSelect.addEventListener('change', ()=>{
-    localStorage.setItem('bible_voice', voiceSelect.value);
-  });
-}
-if(rateRange){ 
-  rateRange.addEventListener('input', ()=> {
-    localStorage.setItem('bible_rate', rateRange.value);
-    rateValue.textContent = parseFloat(rateRange.value).toFixed(2) + 'x';
-  });
-  rateValue.textContent = parseFloat(rateRange.value).toFixed(2) + 'x';
-}
-if(pitchRange){ 
-  pitchRange.addEventListener('input', ()=> {
-    localStorage.setItem('bible_pitch', pitchRange.value);
-    pitchValue.textContent = parseFloat(pitchRange.value).toFixed(2) + 'x';
-  });
-  pitchValue.textContent = parseFloat(pitchRange.value).toFixed(2) + 'x';
-}
-
-// Settings panel toggle
-if(settingsBtn){
-  settingsBtn.addEventListener('click', ()=>{
-    const isHidden = settingsPanel.hasAttribute('hidden');
-    if(isHidden){
-      settingsPanel.removeAttribute('hidden');
-      settingsBtn.textContent = '⚙️ Close';
-    } else {
-      settingsPanel.setAttribute('hidden', '');
-      settingsBtn.textContent = '⚙️ Settings';
-    }
-  });
-}
+// Event listeners will be set up in initializeApp()
 
 function renderBooks(){
+  if(!booksList) {
+    console.error('booksList element not found in renderBooks!');
+    return;
+  }
+  if(!books || (Array.isArray(books) && books.length === 0)) {
+    console.error('No books data available');
+    booksList.innerHTML = '<p class="muted">No books available.</p>';
+    return;
+  }
+  
   booksList.innerHTML = '';
-  if(books.categories || books[0]?.books){
+  
+  if(books.categories || (Array.isArray(books) && books[0]?.books)){
     // Render categorized books
     const categories = books.categories || books;
     categories.forEach(category => {
@@ -124,19 +135,27 @@ function renderBooks(){
       booksList.appendChild(header);
       
       // Add books in this category
-      category.books.forEach(b => {
-        const btn = el('button','book-btn', b.name);
-        btn.addEventListener('click', ()=> showBookReview(b));
-        booksList.appendChild(btn);
-      });
+      if(category.books && Array.isArray(category.books)) {
+        category.books.forEach(b => {
+          const btn = el('button','book-btn', b.name);
+          btn.addEventListener('click', ()=> {
+            showBookReview(b);
+          });
+          booksList.appendChild(btn);
+        });
+      }
     });
   } else {
     // Fallback for old flat format
-    books.forEach(b => {
-      const btn = el('button','book-btn', b.name);
-      btn.addEventListener('click', ()=> showBookReview(b));
-      booksList.appendChild(btn);
-    });
+    if(Array.isArray(books)) {
+      books.forEach(b => {
+        const btn = el('button','book-btn', b.name);
+        btn.addEventListener('click', ()=> {
+          showBookReview(b);
+        });
+        booksList.appendChild(btn);
+      });
+    }
   }
 }
 
@@ -169,6 +188,10 @@ function showBookReview(book){
   function onShow(){
     cleanup();
     modal.setAttribute('hidden','');
+    // Ensure book has originalName for API calls
+    if(!book.originalName){
+      book.originalName = book.name;
+    }
     selectBook(book);
   }
   function onClose(){
@@ -188,7 +211,9 @@ function showBookReview(book){
 
 function selectBook(book){
   activeBook = book;
-  document.querySelectorAll('.book-btn').forEach(n=> n.classList.toggle('active', n.textContent===book.name));
+  document.querySelectorAll('.book-btn').forEach(n=> {
+    n.classList.toggle('active', n.textContent === book.name);
+  });
   renderChapters(book);
   versesEl.innerHTML = `<p class="muted">Select a chapter in ${book.name}.</p>`;
 }
@@ -202,25 +227,41 @@ function renderChapters(book){
   }
 }
 
+// Helper function to fetch verses from bible-api.com
+async function fetchVerses(ref){
+  const url = `https://bible-api.com/${encodeURIComponent(ref)}?translation=kjv`;
+  const r = await fetch(url);
+  if(!r.ok) return null;
+  return await r.json();
+}
+
 async function fetchChapter(book, chapter, btn){
   if(btn) document.querySelectorAll('.chapter-btn').forEach(n=> n.classList.remove('active'));
   if(btn) btn.classList.add('active');
   // Enhanced loading state
   versesEl.innerHTML = '<div class="muted" style="text-align:center;padding:40px;"><div style="display:inline-block;width:40px;height:40px;border:4px solid rgba(139,94,52,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;"></div><p style="margin-top:16px;">Loading chapter...</p></div>';
+  
+  const ref = `${book} ${chapter}`;
+  const savedVersion = localStorage.getItem('bible_version') || 'kjv';
+  
   try{
-    const ref = `${book} ${chapter}`;
-    const url = `https://bible-api.com/${encodeURIComponent(ref)}?translation=kjv`;
-    const r = await fetch(url);
-    if(!r.ok) throw new Error('Not found');
-    const data = await r.json();
+    const data = await fetchVerses(ref);
+    
+    if(!data || !data.verses || data.verses.length === 0){
+      throw new Error('No verses returned from API');
+    }
     displayVerses(data);
   }catch(e){
-    versesEl.innerHTML = `<p class="muted">Could not load chapter. Try again.</p>`;
+    console.error('Error fetching chapter:', e);
+    versesEl.innerHTML = `<p class="muted">Could not load chapter. ${e.message}<br>Please check that the Bible version is supported by the API.</p>`;
   }
 }
 
 function displayVerses(data){
   versesEl.innerHTML = '';
+  versesEl.setAttribute('dir', 'ltr');
+  versesEl.style.textAlign = 'left';
+  
   if(data.reference) {
     const h = el('h2', null, data.reference);
     h.style.opacity = '0';
@@ -299,10 +340,7 @@ function tryParseReference(text){
 }
 
 // ---------------- Search implementation ----------------
-const searchSection = document.getElementById('searchResults');
-const searchMeta = document.getElementById('searchMeta');
-const resultsList = document.getElementById('resultsList');
-const paginationEl = document.getElementById('pagination');
+let searchSection, searchMeta, resultsList, paginationEl;
 
 let searchState = {
   term: '',
@@ -332,8 +370,7 @@ async function searchNextBatch(batchSize = 8){
   try{
     const promises = toFetch.map(ch => {
       const ref = `${ch.book} ${ch.chapter}`;
-      const url = `https://bible-api.com/${encodeURIComponent(ref)}?translation=kjv`;
-      return fetch(url).then(r=> r.ok ? r.json() : null).catch(()=>null);
+      return fetchVerses(ref).catch(()=>null);
     });
     const results = await Promise.all(promises);
     results.forEach((r, idx)=>{
@@ -440,29 +477,184 @@ function escapeRegExp(string){
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// wire search input to behave: if text looks like a verse ref, open directly; otherwise full-text search
-searchBtn.addEventListener('click', async ()=>{
-  const ref = tryParseReference(searchInput.value);
-  if(!ref) return;
-  const isRef = /\d?\s?[A-Za-z]+\s+\d/.test(ref);
-  if(isRef){
-    versesEl.innerHTML = '<p class="muted">Loading...</p>';
-    fetch(`https://bible-api.com/${encodeURIComponent(ref)}?translation=kjv`)
-      .then(r=> r.json())
-      .then(displayVerses)
-      .catch(()=> versesEl.innerHTML = '<p class="muted">Not found.</p>');
+// Search event listeners will be set up in initializeApp()
+
+
+function initializeApp(){
+  // Get DOM elements
+  booksList = document.getElementById('booksList');
+  chapterPicker = document.getElementById('chapterPicker');
+  versesEl = document.getElementById('verses');
+  searchInput = document.getElementById('searchInput');
+  searchBtn = document.getElementById('searchBtn');
+  searchSection = document.getElementById('searchResults');
+  searchMeta = document.getElementById('searchMeta');
+  resultsList = document.getElementById('resultsList');
+  paginationEl = document.getElementById('pagination');
+  voiceSelect = document.getElementById('voiceSelect');
+  rateRange = document.getElementById('rateRange');
+  pitchRange = document.getElementById('pitchRange');
+  cloudToggle = document.getElementById('cloudToggle');
+  cloudProvider = document.getElementById('cloudProvider');
+  cloudVoice = document.getElementById('cloudVoice');
+  settingsBtn = document.getElementById('settingsBtn');
+  settingsPanel = document.getElementById('settingsPanel');
+  rateValue = document.getElementById('rateValue');
+  pitchValue = document.getElementById('pitchValue');
+  translationSelect = document.getElementById('translationSelect');
+  
+  if(!booksList) {
+    console.error('booksList element not found!');
     return;
   }
-  resetSearch(ref);
-  resultsList.innerHTML = '<div class="result-item">Searching…</div>';
-  searchSection.hidden = false;
-  await ensureResultsForPage(1);
-  renderSearchUI();
-});
+  
+  // Initialize document direction
+  document.documentElement.setAttribute('dir', 'ltr');
+  document.documentElement.setAttribute('lang', 'en');
+  
+  // Set initial verses message
+  if(versesEl) versesEl.innerHTML = '<p class="muted">Select a book and chapter.</p>';
+  
+  // Display current version in header subtitle
+  const subtitle = document.querySelector('.subtitle span:not(.subtitle-icon)');
+  if(subtitle && currentBibleVersion){
+    subtitle.textContent = currentBibleVersion.name;
+  }
 
-searchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') searchBtn.click(); });
+  // Make logo clickable to go to welcome page
+  const logoContainer = document.querySelector('.logo-container');
+  if(logoContainer){
+    logoContainer.style.cursor = 'pointer';
+    logoContainer.addEventListener('click', ()=>{
+      localStorage.removeItem('bible_version_selected');
+      window.location.href = 'welcome.html';
+    });
+  }
 
-loadBooks();
+  // Setup event listeners
+  setupEventListeners();
+  
+  // Setup voice controls
+  setupVoiceControls();
+  
+  // Load books
+  loadBooks();
+}
+
+// Wait for DOM to be ready before initializing
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  // DOM already loaded, initialize immediately
+  initializeApp();
+}
+
+function setupEventListeners(){
+  // Search button
+  if(searchBtn && searchInput){
+    searchBtn.addEventListener('click', async ()=>{
+      const ref = tryParseReference(searchInput.value);
+      if(!ref) return;
+      const isRef = /\d?\s?[A-Za-z]+\s+\d/.test(ref);
+      if(isRef){
+        if(versesEl) versesEl.innerHTML = '<p class="muted">Loading...</p>';
+        // Parse reference and build API URL directly
+        const refParts = ref.trim().split(/\s+/);
+        if(refParts.length >= 2){
+          const bookName = refParts.slice(0, -1).join(' ');
+          const chapterVerse = refParts[refParts.length - 1];
+          const refStr = `${bookName} ${chapterVerse}`;
+          fetchVerses(refStr)
+            .then(data => {
+              if(data && data.verses && data.verses.length > 0){
+                displayVerses(data);
+              } else {
+                if(versesEl) versesEl.innerHTML = '<p class="muted">Not found.</p>';
+              }
+            })
+            .catch(()=> { if(versesEl) versesEl.innerHTML = '<p class="muted">Not found.</p>'; });
+        }
+        return;
+      }
+      resetSearch(ref);
+      if(resultsList) resultsList.innerHTML = '<div class="result-item">Searching…</div>';
+      if(searchSection) searchSection.hidden = false;
+      await ensureResultsForPage(1);
+      renderSearchUI();
+    });
+    
+    searchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') searchBtn.click(); });
+  }
+  
+  // Settings button
+  if(settingsBtn && settingsPanel){
+    settingsBtn.addEventListener('click', ()=>{
+      const isHidden = settingsPanel.hasAttribute('hidden');
+      if(isHidden){
+        settingsPanel.removeAttribute('hidden');
+        settingsBtn.textContent = '⚙️ Close';
+      } else {
+        settingsPanel.setAttribute('hidden', '');
+        settingsBtn.textContent = '⚙️ Settings';
+      }
+    });
+  }
+  
+  // Chapter playback buttons
+  const readChapterBtn = document.getElementById('readChapterBtn');
+  const pauseChapterBtn = document.getElementById('pauseChapterBtn');
+  const stopChapterBtn = document.getElementById('stopChapterBtn');
+  
+  if(readChapterBtn && activeBook){
+    readChapterBtn.addEventListener('click', ()=>{
+      if(activeBook && activeBook.chapters){
+        const firstChapter = 1;
+        playChapter(activeBook.name, firstChapter);
+      }
+    });
+  }
+  if(pauseChapterBtn){
+    pauseChapterBtn.addEventListener('click', pauseChapter);
+  }
+  if(stopChapterBtn){
+    stopChapterBtn.addEventListener('click', stopChapter);
+  }
+  
+  // Notes page button
+  const notesPageBtn = document.getElementById('notesPageBtn');
+  if(notesPageBtn){
+    notesPageBtn.addEventListener('click', ()=>{
+      showNotesPage();
+    });
+  }
+}
+
+function setupVoiceControls(){
+  if(window.speechSynthesis){
+    populateVoiceList();
+    speechSynthesis.addEventListener('voiceschanged', populateVoiceList);
+  }
+
+  if(voiceSelect){
+    voiceSelect.addEventListener('change', ()=>{
+      localStorage.setItem('bible_voice', voiceSelect.value);
+    });
+  }
+  if(rateRange && rateValue){ 
+    rateRange.addEventListener('input', ()=> {
+      localStorage.setItem('bible_rate', rateRange.value);
+      rateValue.textContent = parseFloat(rateRange.value).toFixed(2) + 'x';
+    });
+    rateValue.textContent = parseFloat(rateRange.value).toFixed(2) + 'x';
+  }
+  if(pitchRange && pitchValue){ 
+    pitchRange.addEventListener('input', ()=> {
+      localStorage.setItem('bible_pitch', pitchRange.value);
+      pitchValue.textContent = parseFloat(pitchRange.value).toFixed(2) + 'x';
+    });
+    pitchValue.textContent = parseFloat(pitchRange.value).toFixed(2) + 'x';
+  }
+}
 
 // ---------------- Speech (per-verse) ----------------
 let currentUtterance = null;
@@ -597,11 +789,14 @@ const stopBtn = document.getElementById('stopChapterBtn');
 
 async function playChapter(book, chapter){
   // Ensure we have the chapter data; if not, fetch it
+  // 'book' parameter should be English name for API
   if(!lastChapter || lastChapter.book !== book || lastChapter.chapter !== chapter){
     try{
-      const res = await fetch(`https://bible-api.com/${encodeURIComponent(book + ' ' + chapter)}?translation=kjv`);
-      if(!res.ok) throw new Error('Not found');
-      const data = await res.json();
+      const ref = `${book} ${chapter}`;
+      const data = await fetchVerses(ref);
+      if(!data || !data.verses || data.verses.length === 0){
+        throw new Error('Not found');
+      }
       lastChapter = { book: data.book_name || book, chapter: data.chapter || chapter, verses: data.verses || [] };
       displayVerses(data);
     }catch(e){ console.warn('Could not fetch chapter for playback', e); return; }
@@ -675,6 +870,7 @@ function openNoteModal(verseId, verseData){
   const existing = notes.find(n=> n.id === verseId);
   noteModalTitle.textContent = existing ? 'Edit Note' : 'Add Note';
   noteInput.value = existing ? existing.note : '';
+  noteInput.placeholder = 'Enter your note...';
   noteModal.hidden = false;
 }
 
@@ -762,12 +958,12 @@ function renderNotes(){
       const txt = el('div','note-text', `"${n.text}"`);
       const content = el('div','note-content', n.note);
       const actions = el('div','note-actions');
-      const editBtn = el('button','btn-small', 'Edit');
+      const editBtn = el('button','btn-small', t('edit'));
       editBtn.addEventListener('click', ()=>{
         currentNoteVerseId = n.id;
         openNoteModal(n.id, n);
       });
-      const deleteBtn = el('button','btn-small', 'Delete');
+      const deleteBtn = el('button','btn-small', t('delete'));
       deleteBtn.addEventListener('click', ()=>{
         notes = notes.filter(x=> x.id !== n.id);
         localStorage.setItem('bible_notes', JSON.stringify(notes));
@@ -783,16 +979,16 @@ function renderNotes(){
     });
   }
   
-  highlightsList.innerHTML = '<h3>✨ Highlights (' + highlights.length + ')</h3>';
+  highlightsList.innerHTML = `<h3>✨ ${t('highlights')} (${highlights.length})</h3>`;
   if(highlights.length === 0){
-    highlightsList.innerHTML += '<p class="note-text">No highlights yet. Select text in any verse to highlight it.</p>';
+    highlightsList.innerHTML += `<p class="note-text">${t('noHighlights')}</p>`;
   } else {
     highlights.forEach(h=>{
       const div = el('div','highlight-item');
       const ref = el('div','note-ref', `${h.book} ${h.chapter}:${h.verse}`);
       const txt = el('div','note-content', `"${h.text}"`);
       const actions = el('div','note-actions');
-      const deleteBtn = el('button','btn-small', 'Delete');
+      const deleteBtn = el('button','btn-small', t('delete'));
       deleteBtn.addEventListener('click', ()=>{
         highlights = highlights.filter(x=> !(x.id === h.id && x.text === h.text));
         localStorage.setItem('bible_highlights', JSON.stringify(highlights));
