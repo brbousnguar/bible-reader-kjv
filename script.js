@@ -15,6 +15,14 @@ const bibleVersions = {
     displayName: 'KJV (English)',
     apiBase: 'https://bible-api.com',
     apiMethod: 'bible-api'
+  },
+  // Local JSON-backed KJV served by the backend at http://localhost:3000
+  kjv_local: {
+    code: 'kjv-local',
+    name: 'Local King James',
+    displayName: 'Local KJV (JSON)',
+    apiBase: 'http://localhost:3000/api/local',
+    apiMethod: 'local'
   }
 };
 
@@ -26,6 +34,12 @@ function getApiUrl(book, chapter, version){
     // bible-api.com format: https://bible-api.com/Genesis%201?translation=kjv
     const ref = `${book} ${chapter}`;
     return `${v.apiBase}/${encodeURIComponent(ref)}?translation=${v.code}`;
+  }
+
+  if(v.apiMethod === 'local'){
+    // Build a slug like '1-samuel' from the book name if possible
+    const slug = (book || '').toString().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+    return `${v.apiBase}/${encodeURIComponent(slug)}/${encodeURIComponent(chapter)}`;
   }
   
   // Can add other API formats here in the future
@@ -262,12 +276,45 @@ function renderChapters(book){
   }
 }
 
-// Helper function to fetch verses from bible-api.com
+// Helper function to fetch verses from configured API (remote bible-api or local backend)
 async function fetchVerses(ref){
-  const url = `https://bible-api.com/${encodeURIComponent(ref)}?translation=kjv`;
-  const r = await fetch(url);
-  if(!r.ok) return null;
-  return await r.json();
+  // ref expected like "BookName 3" or "BookName 3:16"
+  const savedVersion = localStorage.getItem('bible_version') || 'kjv';
+  const m = String(ref||'').trim().match(/^(.+?)\s+(\d+)(?::(\d+))?$/);
+  if(!m) return null;
+  const book = m[1];
+  const chapter = m[2];
+  const verseNum = m[3] ? parseInt(m[3],10) : null;
+
+  const url = getApiUrl(book, chapter, savedVersion);
+  if(!url) return null;
+
+  try{
+    const r = await fetch(url);
+    if(!r.ok) return null;
+    const data = await r.json();
+
+    // If local backend returns {reference, book_name, chapter, verses}
+    // and bible-api returns a similar shape with 'verses', normalize both.
+    if(data && data.verses){
+      // If a single verse requested, filter
+      if(verseNum){
+        const verses = (data.verses||[]).filter(v=> Number(v.verse) === Number(verseNum));
+        return Object.assign({}, data, { verses });
+      }
+      return data;
+    }
+
+    // Some APIs return { text: '...' } or other shapes; try to normalize
+    if(data && data.text){
+      return { reference: ref, book_name: book, chapter: Number(chapter), verses: [{ verse: verseNum||1, text: data.text }] };
+    }
+
+    return null;
+  }catch(e){
+    console.error('fetchVerses error', e);
+    return null;
+  }
 }
 
 async function fetchChapter(book, chapter, btn){
