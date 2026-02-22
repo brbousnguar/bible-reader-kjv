@@ -1,10 +1,15 @@
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.responses import StreamingResponse, Response, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pathlib import Path
 from openai import AsyncOpenAI
-import json, os
+import base64
+import hashlib
+import hmac
+import json
+import os
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +31,10 @@ _bibles_local  = Path(__file__).resolve().parent.parent / 'bibles' / 'kjv_json'
 _kjv_base      = _bibles_docker if _bibles_docker.exists() else _bibles_local
 
 _kjv_index = None
+_auth_cookie_name = 'bible_auth'
+_auth_secret = os.environ.get('AUTH_SECRET') or os.environ.get('OPENAI_API_KEY') or 'bible-auth-secret'
+_auth_user = os.environ.get('APP_LOGIN_USER') or 'brbousnguar-bible'
+_auth_pass = os.environ.get('APP_LOGIN_PASSWORD') or '2026@Nantes'
 
 
 def load_kjv_index():
@@ -58,6 +67,86 @@ def read_book_file(book_entry):
         return None
     with open(fp, 'r', encoding='utf-8') as f:
         return json.load(f)
+
+
+def _b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).decode('utf-8').rstrip('=')
+
+
+def _b64url_decode(data: str) -> bytes:
+    pad = '=' * (-len(data) % 4)
+    return base64.urlsafe_b64decode(data + pad)
+
+
+def create_auth_token(username: str) -> str:
+    payload = {
+        'u': username,
+        'exp': int(time.time()) + (60 * 60 * 24 * 30),  # 30 days
+    }
+    payload_raw = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+    payload_b64 = _b64url(payload_raw)
+    sig = hmac.new(_auth_secret.encode('utf-8'), payload_b64.encode('utf-8'), hashlib.sha256).digest()
+    return f'{payload_b64}.{_b64url(sig)}'
+
+
+def parse_auth_token(token: str):
+    try:
+        payload_b64, sig_b64 = token.split('.', 1)
+        expected = hmac.new(_auth_secret.encode('utf-8'), payload_b64.encode('utf-8'), hashlib.sha256).digest()
+        provided = _b64url_decode(sig_b64)
+        if not hmac.compare_digest(expected, provided):
+            return None
+        payload = json.loads(_b64url_decode(payload_b64).decode('utf-8'))
+        if int(payload.get('exp', 0)) < int(time.time()):
+            return None
+        if payload.get('u') != _auth_user:
+            return None
+        return payload
+    except Exception:
+        return None
+
+
+def require_auth(request: Request):
+    token = request.cookies.get(_auth_cookie_name, '')
+    if not token or not parse_auth_token(token):
+        raise HTTPException(status_code=401, detail='Authentication required for TTS')
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.get('/api/auth/status')
+def auth_status(request: Request):
+    token = request.cookies.get(_auth_cookie_name, '')
+    payload = parse_auth_token(token) if token else None
+    return {'authenticated': bool(payload), 'username': payload.get('u') if payload else None}
+
+
+@app.post('/api/auth/login')
+def auth_login(req: LoginRequest, request: Request):
+    if req.username != _auth_user or req.password != _auth_pass:
+        raise HTTPException(status_code=401, detail='Invalid username or password')
+    token = create_auth_token(req.username)
+    res = Response(content=json.dumps({'ok': True}), media_type='application/json')
+    res.set_cookie(
+        key=_auth_cookie_name,
+        value=token,
+        httponly=True,
+        secure=(request.url.scheme == 'https'),
+        samesite='lax',
+        max_age=60 * 60 * 24 * 30,
+        path='/',
+    )
+    return res
+
+
+@app.post('/api/auth/logout')
+def auth_logout():
+    res = Response(content=json.dumps({'ok': True}), media_type='application/json')
+    res.delete_cookie(_auth_cookie_name, path='/')
+    return res
 
 
 # ---------------------------------------------------------------------------
@@ -129,7 +218,8 @@ class TTSRequest(BaseModel):
 
 
 @app.post('/api/tts')
-async def api_tts(req: TTSRequest):
+async def api_tts(req: TTSRequest, request: Request):
+    require_auth(request)
     api_key = os.environ.get('OPENAI_API_KEY')
     if not api_key:
         raise HTTPException(status_code=500, detail='OPENAI_API_KEY not configured')
@@ -151,11 +241,13 @@ async def api_tts(req: TTSRequest):
 
 @app.get('/api/commentary')
 async def api_commentary(
+    request: Request,
     book: str = Query(''),
     chapter: int = Query(0),
     verse: int = Query(0),
     text: str = Query(''),
 ):
+    require_auth(request)
     api_key = os.environ.get('OPENAI_API_KEY')
 
     if not api_key:

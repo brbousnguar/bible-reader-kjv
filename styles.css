@@ -839,6 +839,57 @@ body::before{
   margin:8px 0;
 }
 
+.auth-form{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.auth-status{
+  margin:0 0 12px 0;
+  font-size:0.86rem;
+  color:var(--muted);
+}
+
+.auth-status.auth-ok{
+  color:#1f7a32;
+}
+
+.auth-status.auth-off{
+  color:var(--muted);
+}
+
+.auth-status.auth-error{
+  color:#b34d4d;
+}
+
+.auth-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.auth-login-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+}
+
+.auth-logout{
+  background:#6f4520;
+}
+
+.auth-logout:hover{
+  background:#5b3619;
+}
+
+.tts-locked .play-btn,
+.tts-locked #chapterControls,
+.tts-locked .tts-only{
+  display:none !important;
+}
+
 /* Enhanced Container */
 .container{
   display:flex;

@@ -42,7 +42,7 @@
     <!-- Settings Panel (collapsible) -->
   <div id="settingsPanel" class="settings-panel" hidden>
     <div class="settings-content">
-      <div class="settings-section">
+      <div class="settings-section tts-only">
         <h3 class="settings-title">🤖 AI Voice Settings</h3>
         <div class="settings-row">
           <label class="setting-label">Voice</label>
@@ -61,6 +61,16 @@
           <span id="rateValue" class="setting-value">1.00x</span>
         </div>
         <p class="settings-note">AI voices powered by OpenAI TTS. Requires the backend server (<code>uvicorn server.main:app</code>).</p>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-section">
+        <h3 class="settings-title">🔐 TTS Access</h3>
+        <p id="authStatusText" class="auth-status">Checking login status...</p>
+        <div class="auth-actions">
+          <a id="authLoginLink" class="chapter-action auth-login-link" href="login.html">Go To Login Page</a>
+          <button id="authLogoutBtn" type="button" class="chapter-action auth-logout" hidden>Logout</button>
+        </div>
+        <p class="settings-note">TTS controls are only visible after login.</p>
       </div>
     </div>
   </div>
@@ -136,7 +146,7 @@
             </div>
           </div>
           <div id="chapterPicker" class="chapters" role="group" aria-label="Chapter selection"></div>
-          <div id="chapterControls" class="chapter-controls" role="group" aria-label="Chapter playback controls">
+          <div id="chapterControls" class="chapter-controls tts-only" role="group" aria-label="Chapter playback controls">
             <button id="readChapterBtn" class="chapter-action" aria-label="Read entire chapter">▶ Read Chapter</button>
             <button id="pauseChapterBtn" class="chapter-action" aria-label="Pause playback">⏸ Pause</button>
             <button id="stopChapterBtn" class="chapter-action" aria-label="Stop playback">⏹ Stop</button>

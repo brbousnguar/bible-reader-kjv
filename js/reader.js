@@ -136,14 +136,16 @@ function displayVerses(data){
       p.id = id;
       p.style.opacity = '0';
       p.style.transform = 'translateY(10px)';
-      // play button
-      const play = el('button','play-btn');
-      play.setAttribute('aria-label', `Play verse ${v.verse}`);
-      play.innerHTML = '🔊';
-      play.addEventListener('click', ()=>{
-        speakVerse(v.text, id, play);
-      });
-      p.appendChild(play);
+      let play = null;
+      if(window.ttsAuthEnabled){
+        play = el('button','play-btn');
+        play.setAttribute('aria-label', `Play verse ${v.verse}`);
+        play.innerHTML = '🔊';
+        play.addEventListener('click', ()=>{
+          speakVerse(v.text, id, play);
+        });
+        p.appendChild(play);
+      }
       // note button
       const noteBtn = el('button','note-btn');
       noteBtn.setAttribute('aria-label', `Add note to verse ${v.verse}`);
@@ -157,14 +159,16 @@ function displayVerses(data){
       // explain button
       const commentary = el('div', 'verse-commentary');
       commentary.hidden = true;
-      const explainBtn = el('button', 'explain-btn');
-      explainBtn.setAttribute('aria-label', `Explain verse ${v.verse}`);
-      explainBtn.textContent = 'Explain';
-      explainBtn.addEventListener('click', ()=>{
-        explainBtn.classList.toggle('active', commentary.hidden);
-        explainVerse(bookName, chapterNum, v.verse, v.text, commentary);
-      });
-      p.appendChild(explainBtn);
+      if(window.ttsAuthEnabled){
+        const explainBtn = el('button', 'explain-btn');
+        explainBtn.setAttribute('aria-label', `Explain verse ${v.verse}`);
+        explainBtn.textContent = 'Explain';
+        explainBtn.addEventListener('click', ()=>{
+          explainBtn.classList.toggle('active', commentary.hidden);
+          explainVerse(bookName, chapterNum, v.verse, v.text, commentary);
+        });
+        p.appendChild(explainBtn);
+      }
       const num = el('span','verse-num', v.verse);
       p.appendChild(num);
       const textNode = document.createElement('span');
@@ -350,7 +354,24 @@ let chapterQueue = [];
 let chapterIndex = 0;
 let chapterPlaying = false;
 
+async function requestTtsAudio(text, voice, speed){
+  const res = await fetch('/api/tts', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    credentials: 'same-origin',
+    body: JSON.stringify({text, voice, speed}),
+  });
+  if(res.status === 401){
+    window.ttsAuthEnabled = false;
+    if(typeof window.requireTtsLogin === 'function') window.requireTtsLogin();
+    throw new Error('Login required for TTS');
+  }
+  if(!res.ok) throw new Error('TTS request failed');
+  return res.blob();
+}
+
 async function speakVerse(text, verseId, btn){
+  if(typeof window.requireTtsLogin === 'function' && !window.requireTtsLogin()) return;
   // Toggle off if same verse clicked again
   if(currentVerseId === verseId && currentAudio){
     currentAudio.pause();
@@ -378,13 +399,7 @@ async function speakVerse(text, verseId, btn){
     if(node) node.classList.add('speaking');
     currentVerseId = verseId;
 
-    const res = await fetch('/api/tts', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({text, voice, speed}),
-    });
-    if(!res.ok) throw new Error('TTS request failed');
-    const blob = await res.blob();
+    const blob = await requestTtsAudio(text, voice, speed);
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     currentAudio = audio;
@@ -410,19 +425,17 @@ async function speakVerse(text, verseId, btn){
 // For sequential chapter playback — resolves when audio finishes
 function speakVerseAndWait(text, verseId, btn){
   return new Promise(async (resolve)=>{
+    if(typeof window.requireTtsLogin === 'function' && !window.requireTtsLogin()){
+      resolve();
+      return;
+    }
     const voice = localStorage.getItem('bible_ai_voice') || 'onyx';
     const speed = parseFloat(localStorage.getItem('bible_ai_speed') || '1.0');
     const node = document.getElementById(verseId);
     try{
       if(btn) btn.classList.add('playing');
       if(node) node.classList.add('speaking');
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text, voice, speed}),
-      });
-      if(!res.ok) throw new Error('TTS failed');
-      const blob = await res.blob();
+      const blob = await requestTtsAudio(text, voice, speed);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       currentAudio = audio;

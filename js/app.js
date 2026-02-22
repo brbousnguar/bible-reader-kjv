@@ -2,6 +2,7 @@ const booksUrl = 'books.json';
 let booksList, chapterPicker, versesEl, searchInput, searchBtn;
 let aiVoiceSelect, rateRange;
 let settingsBtn, settingsPanel, rateValue;
+let authStatusText, authLoginLink, authLogoutBtn, chapterControlsEl;
 let chapterDrawer, drawerSubtitle;
 let recentBooksSection, recentBooksGrid;
 let recentNotesSection, recentNotesList;
@@ -32,6 +33,10 @@ let bookMeta = {};
 let bookImages = {}; // Store fetched book images
 const recentKey = 'bible_recent_books';
 const readKey = 'bible_read_chapters';
+const authState = { authenticated: false, username: null };
+
+window.ttsAuthEnabled = false;
+window.ttsAuthUsername = null;
 
 function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text) e.textContent = text; return e }
 
@@ -43,6 +48,64 @@ function escapeHtml(str){
     '"': '&quot;',
     "'": '&#39;'
   }[ch]));
+}
+
+function setTtsAuthState(authenticated, username){
+  authState.authenticated = Boolean(authenticated);
+  authState.username = username || null;
+  window.ttsAuthEnabled = authState.authenticated;
+  window.ttsAuthUsername = authState.username;
+  document.body.classList.toggle('tts-locked', !authState.authenticated);
+
+  if(authStatusText){
+    if(authState.authenticated){
+      authStatusText.textContent = `Logged in as ${authState.username}. TTS is enabled.`;
+      authStatusText.className = 'auth-status auth-ok';
+    } else {
+      authStatusText.textContent = 'Not logged in. TTS is disabled.';
+      authStatusText.className = 'auth-status auth-off';
+    }
+  }
+  if(authLoginLink) authLoginLink.hidden = authState.authenticated;
+  if(authLogoutBtn) authLogoutBtn.hidden = !authState.authenticated;
+  if(chapterControlsEl) chapterControlsEl.hidden = !authState.authenticated;
+}
+
+async function refreshAuthStatus(){
+  try{
+    const res = await fetch('/api/auth/status', { credentials: 'same-origin' });
+    if(!res.ok) throw new Error('status failed');
+    const data = await res.json();
+    setTtsAuthState(Boolean(data.authenticated), data.username || null);
+  }catch(e){
+    setTtsAuthState(false, null);
+    if(authStatusText){
+      authStatusText.textContent = 'Cannot verify login status right now.';
+      authStatusText.className = 'auth-status auth-error';
+    }
+  }
+}
+
+function requireTtsLogin(){
+  if(window.ttsAuthEnabled) return true;
+  const next = `${window.location.pathname}${window.location.search}`;
+  window.location.href = `/login.html?next=${encodeURIComponent(next)}`;
+  return false;
+}
+
+window.requireTtsLogin = requireTtsLogin;
+
+function setupAuthControls(){
+  if(authLogoutBtn){
+    authLogoutBtn.addEventListener('click', async ()=>{
+      try{
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      }catch(e){/*ignore*/}
+      setTtsAuthState(false, null);
+      const next = `${window.location.pathname}${window.location.search}`;
+      window.location.href = `/login.html?next=${encodeURIComponent(next)}`;
+    });
+  }
 }
 
 function createBookButton(book){
@@ -375,6 +438,10 @@ function initializeApp(){
   settingsBtn = document.getElementById('settingsBtn');
   settingsPanel = document.getElementById('settingsPanel');
   rateValue = document.getElementById('rateValue');
+  authStatusText = document.getElementById('authStatusText');
+  authLoginLink = document.getElementById('authLoginLink');
+  authLogoutBtn = document.getElementById('authLogoutBtn');
+  chapterControlsEl = document.getElementById('chapterControls');
   chapterDrawer = document.getElementById('chapterDrawer');
   drawerSubtitle = document.getElementById('drawerSubtitle');
   recentBooksSection = document.getElementById('recentBooks');
@@ -410,13 +477,14 @@ function initializeApp(){
     });
   }
 
-  // Setup event listeners
-  setupEventListeners();
-  
-  // Setup voice controls
-  setupVoiceControls();
+  initializeAuthenticatedSession();
+}
 
-  // Load books
+async function initializeAuthenticatedSession(){
+  await refreshAuthStatus();
+  setupEventListeners();
+  setupVoiceControls();
+  setupAuthControls();
   loadBooks();
 }
 
