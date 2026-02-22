@@ -270,6 +270,23 @@ window.scheduleUserStateSave = scheduleUserStateSave;
 window.saveUserStateNow = saveUserStateNow;
 window.loadUserState = loadUserState;
 
+function isMobileView(){
+  return window.matchMedia('(max-width: 900px)').matches;
+}
+
+function focusChapterDrawer(){
+  const readerView = document.getElementById('readerView');
+  if(!readerView) return;
+  readerView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if(chapterDrawer){
+    chapterDrawer.classList.remove('chapter-drawer-focus');
+    requestAnimationFrame(()=>{
+      chapterDrawer.classList.add('chapter-drawer-focus');
+      setTimeout(()=> chapterDrawer.classList.remove('chapter-drawer-focus'), 900);
+    });
+  }
+}
+
 function createBookButton(book){
   const btn = document.createElement('button');
   btn.className = 'book-btn';
@@ -304,7 +321,13 @@ function createBookButton(book){
     btn.appendChild(prog);
   }
 
-  btn.addEventListener('click', ()=> showBookReview(book));
+  btn.addEventListener('click', ()=>{
+    if(isMobileView()){
+      selectBook(book, { autoScroll: true });
+      return;
+    }
+    showBookReview(book);
+  });
   return btn;
 }
 
@@ -442,7 +465,7 @@ function showBookReview(book){
   }
 }
 
-function selectBook(book){
+function selectBook(book, options = {}){
   activeBook = book;
   document.querySelectorAll('.book-btn').forEach(n=> {
     n.classList.toggle('active', n.dataset.book === book.name);
@@ -451,6 +474,10 @@ function selectBook(book){
   versesEl.innerHTML = `<p class="muted">Select a chapter in ${book.name}.</p>`;
   openChapterDrawer(`${book.name} chapters`);
   updateRecentBooks(book.name);
+  const shouldAutoScroll = options.autoScroll === true || isMobileView();
+  if(shouldAutoScroll){
+    setTimeout(()=> focusChapterDrawer(), 120);
+  }
 }
 
 function renderChapters(book){

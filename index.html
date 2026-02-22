@@ -111,15 +111,30 @@
     
     <!-- Hero Content Overlay -->
     <div class="hero-overlay">
-      <div class="hero-content">
-        <div class="hero-icon">📖</div>
-        <h2 id="heroTitle">Welcome to Bible Reader</h2>
-        <div class="hero-divider"></div>
-        <p>Explore the King James Version — read, listen, and save your notes. Discover 100+ biblical characters, search verses, and deepen your understanding.</p>
-        <div class="hero-cta">
-          <button class="hero-btn hero-btn-primary" id="startReadingBtn">Start Reading</button>
-          <button class="hero-btn" onclick="document.getElementById('charactersPageBtn').click()">Explore Characters</button>
+      <div class="hero-layout">
+        <div class="hero-content">
+          <span class="hero-kicker">KJV Study Companion</span>
+          <h2 id="heroTitle">Read Scripture With Focus And Flow</h2>
+          <p>Open any book fast, move through chapters without friction, and keep your study notes synced to your login session.</p>
+          <div class="hero-cta">
+            <button class="hero-btn hero-btn-primary" id="startReadingBtn">Start Reading</button>
+            <button class="hero-btn hero-btn-secondary" onclick="document.getElementById('charactersPageBtn').click()">Explore Characters</button>
+          </div>
+          <div class="hero-meta" aria-label="Key app highlights">
+            <span>66 books</span>
+            <span>Quick chapter picker</span>
+            <span>Saved notes</span>
+          </div>
         </div>
+        <aside class="hero-panel" aria-label="Study highlights">
+          <h3>Today&apos;s Study Flow</h3>
+          <ul>
+            <li>Select a book and chapter instantly</li>
+            <li>Read verse-by-verse with highlights and notes</li>
+            <li>Use Explain and TTS after login</li>
+          </ul>
+          <button class="hero-link-btn" type="button" onclick="document.getElementById('settingsBtn').click()">Manage access</button>
+        </aside>
       </div>
     </div>
   </section>
