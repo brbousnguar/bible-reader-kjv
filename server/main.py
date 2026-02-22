@@ -32,9 +32,16 @@ _kjv_base      = _bibles_docker if _bibles_docker.exists() else _bibles_local
 
 _kjv_index = None
 _auth_cookie_name = 'bible_auth'
-_auth_secret = os.environ.get('AUTH_SECRET') or os.environ.get('OPENAI_API_KEY') or 'bible-auth-secret'
-_auth_user = os.environ.get('APP_LOGIN_USER') or 'brbousnguar-bible'
-_auth_pass = os.environ.get('APP_LOGIN_PASSWORD') or '2026@Nantes'
+_auth_secret = os.environ.get('AUTH_SECRET')
+_auth_user = os.environ.get('APP_LOGIN_USER')
+_auth_pass_hash = os.environ.get('APP_LOGIN_PASSWORD_HASH')
+
+if not _auth_secret:
+    raise RuntimeError('AUTH_SECRET must be set')
+if not _auth_user:
+    raise RuntimeError('APP_LOGIN_USER must be set')
+if not _auth_pass_hash:
+    raise RuntimeError('APP_LOGIN_PASSWORD_HASH must be set')
 
 
 def load_kjv_index():
@@ -112,6 +119,26 @@ def require_auth(request: Request):
         raise HTTPException(status_code=401, detail='Authentication required for TTS')
 
 
+def verify_password(password: str, stored_hash: str) -> bool:
+    # Format: pbkdf2_sha256$<iterations>$<salt>$<hash_b64url>
+    try:
+        algo, rounds, salt, expected_b64 = stored_hash.split('$', 3)
+        if algo != 'pbkdf2_sha256':
+            return False
+        iterations = int(rounds)
+        expected = _b64url_decode(expected_b64)
+        actual = hashlib.pbkdf2_hmac(
+            'sha256',
+            password.encode('utf-8'),
+            salt.encode('utf-8'),
+            iterations,
+            dklen=len(expected),
+        )
+        return hmac.compare_digest(actual, expected)
+    except Exception:
+        return False
+
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -126,7 +153,7 @@ def auth_status(request: Request):
 
 @app.post('/api/auth/login')
 def auth_login(req: LoginRequest, request: Request):
-    if req.username != _auth_user or req.password != _auth_pass:
+    if req.username != _auth_user or not verify_password(req.password, _auth_pass_hash):
         raise HTTPException(status_code=401, detail='Invalid username or password')
     token = create_auth_token(req.username)
     res = Response(content=json.dumps({'ok': True}), media_type='application/json')
