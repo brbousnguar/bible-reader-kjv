@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Query, HTTPException
-from fastapi.responses import StreamingResponse, Response
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse, Response, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pathlib import Path
@@ -211,10 +210,19 @@ async def api_commentary(
 
 
 # ---------------------------------------------------------------------------
-# Static files — MUST be last
+# Static files — catch-all route (avoids StaticFiles lifespan assertion bug)
 # ---------------------------------------------------------------------------
 _static_docker = Path('/app/static')
 _static_local  = Path(__file__).resolve().parent.parent
 _static_dir    = _static_docker if _static_docker.exists() else _static_local
 
-app.mount('/', StaticFiles(directory=str(_static_dir), html=True), name='static')
+
+@app.get('/{full_path:path}', include_in_schema=False)
+async def serve_spa(full_path: str):
+    target = (_static_dir / full_path).resolve()
+    # Safety: prevent path traversal outside static dir
+    if not str(target).startswith(str(_static_dir)):
+        raise HTTPException(status_code=403)
+    if target.is_file():
+        return FileResponse(target)
+    return FileResponse(_static_dir / 'index.html')

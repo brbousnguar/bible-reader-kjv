@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bible Reader — Choose Your Version</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
   <style>
     * {
       box-sizing: border-box;
@@ -44,21 +46,17 @@
     }
     
     .logo-icon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, rgba(139,94,52,0.1), rgba(139,94,52,0.05));
-      border-radius: 20px;
-      padding: 20px;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 8px;
     }
-    
-    .logo-icon svg {
+
+    .logo-icon img {
       width: 100%;
       height: 100%;
-      color: #8b5e34;
+      object-fit: contain;
+      display: block;
+      mix-blend-mode: multiply;
     }
     
     h1 {
@@ -153,11 +151,7 @@
   <div class="welcome-container">
     <div class="logo-section">
       <div class="logo-icon">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 20 L50 10 L80 20 L80 80 L50 90 L20 80 Z" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M35 30 L35 70 M50 30 L50 70 M65 30 L65 70" stroke="currentColor" stroke-width="1.5"/>
-          <circle cx="50" cy="50" r="8" fill="currentColor" opacity="0.3"/>
-        </svg>
+        <img src="logo.png" alt="Bible Reader">
       </div>
       <h1>Bible Reader</h1>
       <p class="subtitle">Choose your preferred Bible version to begin</p>
