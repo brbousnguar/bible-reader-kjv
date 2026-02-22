@@ -1,43 +1,114 @@
-# Bible Reader (KJV) — lightweight web app
+# Bible Reader — KJV
 
-This small app provides quick access to books and chapters of the King James Version (public domain) by fetching passages from `bible-api.com`.
+A feature-rich King James Version Bible reader with AI-powered voice reading and verse commentary.
 
-Quick start
+## Features
 
-1. Open the project folder and serve it with a simple static server.
+- Browse all 66 books and their chapters
+- Full-text verse search
+- **AI voice reading** — per-verse and full-chapter playback via OpenAI TTS
+- **AI commentary** — GPT-4o-mini explains any verse on demand (streamed)
+- Notes & highlights saved to `localStorage`
+- 66+ biblical characters with images and cross-references
+- Hero video background, sepia/paper theme, responsive layout
 
-Using Python (recommended):
-```bash
-python -m http.server 8000
-# then open http://localhost:8000 in your browser
+## Quick Start
+
+### 1. Add your OpenAI key
+
+Create a `.env` file in the project root:
+
+```
+OPENAI_API_KEY=sk-proj-...
 ```
 
-Or using Node (if you have http-server):
-```bash
-npx http-server -p 8000
-```
+### 2. Install dependencies
 
-Files
-- `index.html`: Main UI
-- `styles.css`: Clean, minimal styles
-- `script.js`: Loads `books.json`, fetches chapters from `https://bible-api.com` (KJV) and renders verses
-- `books.json`: List of books and chapter counts
-
-Cloud TTS proxy (optional)
-
-If you want higher-quality neural voices, you can run the optional server in `server/` which proxies to cloud TTS providers (Google/Azure). It expects API keys as environment variables — see `server/README.md` for details.
-
-If you prefer Python instead of Node, there's a Flask-based proxy in `server/app.py`. Install its dependencies with:
+From the project root, activate (or create) a virtual environment:
 
 ```bash
-cd server
-python -m venv .venv
-.venv\Scripts\Activate.ps1   # Windows PowerShell
-pip install -r requirements.txt
+python3 -m venv server/.venv
+source server/.venv/bin/activate      # macOS/Linux
+# server\.venv\Scripts\Activate.ps1  # Windows PowerShell
+
+pip install -r server/requirements.txt
 ```
 
-Then set `GOOGLE_API_KEY` or `AZURE_KEY`/`AZURE_REGION` and run `python app.py`.
+### 3. Run the server
 
-Notes
-- The app uses the public-domain King James Version (KJV) via `https://bible-api.com`. No shipping of the full text is included.
-- Search accepts references like `John 3` or `John 3:16`.
+```bash
+uvicorn server.main:app --reload --port 3000
+```
+
+Open **http://localhost:3000** in your browser.
+
+---
+
+## Docker
+
+```bash
+# .env is picked up automatically by Docker Compose
+docker compose up --build
+```
+
+Open **http://localhost:3000**.
+
+---
+
+## Project Structure
+
+```
+bible/
+├── index.html          # App shell
+├── script.js           # All client-side logic
+├── styles.css          # Sepia/paper theme
+├── books.json          # 66-book metadata (testament / category)
+├── book_meta.json      # Curated reviews for major books
+├── characters.json     # 66+ biblical characters
+├── bibles/
+│   └── kjv_json/       # Local KJV text (index.json + per-book files)
+├── videos/
+│   └── bible_scenes_1080p.mp4
+├── server/
+│   ├── main.py         # FastAPI backend (Bible API + TTS + commentary)
+│   ├── requirements.txt
+│   └── Dockerfile
+├── docker-compose.yml
+└── .env                # Your secrets (git-ignored)
+```
+
+## API Endpoints
+
+All served by `server/main.py` on port 3000:
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/bible/books` | Book list from local KJV index |
+| `GET /api/bible/{slug}/{chapter}` | Chapter verses (e.g. `/api/bible/genesis/1`) |
+| `GET /api/bible/search?q=faith` | Full-text verse search (up to 200 results) |
+| `POST /api/tts` | OpenAI TTS — returns MP3 audio |
+| `GET /api/commentary?book=&chapter=&verse=&text=` | SSE-streamed GPT-4o-mini commentary |
+| `GET /` | Serves `index.html` and all static assets |
+
+### TTS request body
+
+```json
+{ "text": "In the beginning God created...", "voice": "onyx", "speed": 1.0 }
+```
+
+Available voices: `alloy`, `echo`, `fable`, `onyx` (default), `nova`, `shimmer`.
+
+## Environment Variables
+
+| Variable | Purpose |
+|---|---|
+| `OPENAI_API_KEY` | Required — OpenAI TTS + GPT-4o-mini commentary |
+
+Put it in `.env` at the project root (auto-loaded by the backend and by Docker Compose).
+
+## Notes
+
+- Bible text is the public-domain King James Version, stored locally in `bibles/kjv_json/`.
+- Search is done client-side, fetching chapters from the local backend.
+- AI features require an active internet connection and a valid OpenAI key.
+- `server/app.py` (old Flask backend) is no longer used and can be deleted.

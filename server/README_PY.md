@@ -1,35 +1,94 @@
-Python TTS proxy (Flask)
+# FastAPI Backend — `server/main.py`
 
-This optional Flask app provides a `/tts` endpoint the client can POST to with JSON:
+Single Python server that handles **Bible data**, **OpenAI TTS**, and **AI commentary**, and also serves all static frontend files.
 
-{
-  "text": "Text to synthesize",
-  "provider": "google" | "azure",
-  "voice": "voiceName",
-  "rate": 0.95,
-  "pitch": 1.0
-}
+## Setup
 
-It supports:
-- Google Cloud Text-to-Speech (REST API): set `GOOGLE_API_KEY` environment variable.
-- Azure Cognitive Services Speech Synthesis (REST): set `AZURE_KEY` and `AZURE_REGION` environment variables.
-
-Install & run (Python 3.8+ recommended):
+From the **project root**:
 
 ```bash
-cd server
-python -m venv .venv
-# Windows (PowerShell)
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-# Set env vars and run (PowerShell example):
-$env:GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY'
-python app.py
+python3 -m venv server/.venv
+source server/.venv/bin/activate        # macOS/Linux
+# server\.venv\Scripts\Activate.ps1   # Windows PowerShell
+
+pip install -r server/requirements.txt
 ```
 
-By default the server listens on port 3000. If you serve the web UI on a different origin, enable CORS or proxy requests to `/tts`.
+Create a `.env` file in the project root:
 
-Notes
-- Google: uses `text:synthesize` REST API returning base64 MP3.
-- Azure: uses the Speech REST endpoint with SSML; ensure region + key are correct.
-- This server will incur cloud TTS costs when used; keep API keys secret.
+```
+OPENAI_API_KEY=sk-proj-...
+```
+
+## Run
+
+```bash
+uvicorn server.main:app --reload --port 3000
+```
+
+Open **http://localhost:3000**.
+
+## API
+
+### Bible
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/bible/books` | All 66 books from `bibles/kjv_json/index.json` |
+| `GET` | `/api/bible/{slug}/{chapter}` | Chapter verses (slug = lowercase book name, e.g. `genesis`, `1-samuel`) |
+| `GET` | `/api/bible/search?q=<query>` | Full-text search across all verses (max 200 results) |
+
+### TTS
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/tts` | Synthesize speech with OpenAI `tts-1` model |
+
+Request body:
+```json
+{
+  "text": "verse text here",
+  "voice": "onyx",
+  "speed": 1.0
+}
+```
+Returns: `audio/mpeg` (MP3).
+
+Available voices: `alloy` · `echo` · `fable` · `onyx` · `nova` · `shimmer`
+
+### Commentary (SSE)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/commentary` | Streams GPT-4o-mini commentary as Server-Sent Events |
+
+Query params: `book`, `chapter`, `verse`, `text`
+
+The stream sends text tokens as `data: <token>` events, ending with `data: [DONE]`. Errors are sent as `data: [ERROR] <message>` followed by `data: [DONE]`.
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `OPENAI_API_KEY` | Yes | Used for TTS and commentary |
+
+The server loads `.env` from the working directory via `python-dotenv`.
+
+## Dependencies
+
+```
+fastapi
+uvicorn[standard]
+openai
+python-dotenv
+aiofiles
+```
+
+## Bible Data Paths
+
+The server tries Docker paths first, then falls back to local dev paths:
+
+| Resource | Docker | Local dev |
+|---|---|---|
+| KJV JSON | `/app/bibles/kjv_json` | `../bibles/kjv_json` |
+| Static files | `/app/static` | project root (`../`) |
