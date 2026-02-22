@@ -1,21 +1,14 @@
 version: '3.8'
 services:
-  backend:
+  app:
     build:
       context: ./server
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
+      - ./:/app/static:ro
       - ./bibles:/app/bibles:ro
     environment:
       - PORT=3000
-
-  frontend:
-    image: nginx:stable-alpine
-    ports:
-      - "8000:80"
-    volumes:
-      - ./:/usr/share/nginx/html:ro
-    depends_on:
-      - backend
+      - OPENAI_API_KEY=${OPENAI_API_KEY}

@@ -298,43 +298,24 @@
   <div id="settingsPanel" class="settings-panel" hidden>
     <div class="settings-content">
       <div class="settings-section">
-        <h3 class="settings-title">🎙️ Local Voice Settings</h3>
+        <h3 class="settings-title">🤖 AI Voice Settings</h3>
         <div class="settings-row">
           <label class="setting-label">Voice</label>
-          <select id="voiceSelect" class="setting-input"></select>
-        </div>
-        <div class="settings-row">
-          <label class="setting-label">Speed</label>
-          <input id="rateRange" type="range" min="0.6" max="1.4" step="0.05" value="0.95" class="setting-input">
-          <span id="rateValue" class="setting-value">0.95x</span>
-        </div>
-        <div class="settings-row">
-          <label class="setting-label">Pitch</label>
-          <input id="pitchRange" type="range" min="0.6" max="1.4" step="0.05" value="1.0" class="setting-input">
-          <span id="pitchValue" class="setting-value">1.00x</span>
-        </div>
-      </div>
-      
-      <div class="settings-divider"></div>
-      
-      <div class="settings-section">
-        <h3 class="settings-title">☁️ Cloud TTS (Optional)</h3>
-        <div class="settings-row">
-          <label class="setting-label">Enable Cloud TTS</label>
-          <input id="cloudToggle" type="checkbox" class="setting-checkbox">
-        </div>
-        <div class="settings-row">
-          <label class="setting-label">Provider</label>
-          <select id="cloudProvider" class="setting-input">
-            <option value="google">Google Cloud</option>
-            <option value="azure" disabled>Azure Cognitive</option>
-            <option value="aws" disabled>Amazon Polly</option>
+          <select id="aiVoiceSelect" class="setting-input">
+            <option value="alloy">Alloy</option>
+            <option value="echo">Echo</option>
+            <option value="fable">Fable</option>
+            <option value="onyx" selected>Onyx (Default)</option>
+            <option value="nova">Nova</option>
+            <option value="shimmer">Shimmer</option>
           </select>
         </div>
         <div class="settings-row">
-          <label class="setting-label">Cloud Voice</label>
-          <input id="cloudVoice" placeholder="e.g. en-US-Wavenet-D" class="setting-input" />
+          <label class="setting-label">Speed</label>
+          <input id="rateRange" type="range" min="0.5" max="2.0" step="0.05" value="1.0" class="setting-input">
+          <span id="rateValue" class="setting-value">1.00x</span>
         </div>
+        <p class="settings-note">AI voices powered by OpenAI TTS. Requires the backend server (<code>uvicorn server.main:app</code>).</p>
       </div>
     </div>
   </div>

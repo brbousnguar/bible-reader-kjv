@@ -1,53 +1,20 @@
-// Set KJV as default version
-localStorage.setItem('bible_version', 'kjv');
-localStorage.setItem('bible_version_selected', 'true');
-
 const booksUrl = 'books.json';
 let booksList, chapterPicker, versesEl, searchInput, searchBtn;
-let voiceSelect, rateRange, pitchRange, cloudToggle, cloudProvider, cloudVoice;
-let settingsBtn, settingsPanel, rateValue, pitchValue, translationSelect;
+let aiVoiceSelect, rateRange;
+let settingsBtn, settingsPanel, rateValue;
 
-// Bible Version configuration - King James Version only
-const bibleVersions = {
-  kjv: { 
-    code: 'kjv', 
-    name: 'King James Version', 
-    displayName: 'KJV (English)',
-    apiBase: 'https://bible-api.com',
-    apiMethod: 'bible-api'
-  },
-  // Local JSON-backed KJV served by the backend at http://localhost:3000
-  kjv_local: {
-    code: 'kjv-local',
-    name: 'Local King James',
-    displayName: 'Local KJV (JSON)',
-    apiBase: 'http://localhost:3000/api/local',
-    apiMethod: 'local'
-  }
-};
+// i18n stub (fixes renderNotes usage)
+const i18n = { edit: 'Edit', delete: 'Delete', highlights: 'Highlights', noHighlights: 'No highlights yet.' };
+function t(key){ return i18n[key] || key; }
 
-// API helper functions
-function getApiUrl(book, chapter, version){
-  const v = bibleVersions[version] || bibleVersions.kjv;
-  
-  if(v.apiMethod === 'bible-api'){
-    // bible-api.com format: https://bible-api.com/Genesis%201?translation=kjv
-    const ref = `${book} ${chapter}`;
-    return `${v.apiBase}/${encodeURIComponent(ref)}?translation=${v.code}`;
-  }
-
-  if(v.apiMethod === 'local'){
-    // Build a slug like '1-samuel' from the book name if possible
-    const slug = (book || '').toString().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
-    return `${v.apiBase}/${encodeURIComponent(slug)}/${encodeURIComponent(chapter)}`;
-  }
-  
-  // Can add other API formats here in the future
-  return null;
+// API helper — always uses the local FastAPI backend via relative paths
+function getApiUrl(book, chapter){
+  const slug = (book || '').toString().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+  return `/api/bible/${encodeURIComponent(slug)}/${encodeURIComponent(chapter)}`;
 }
 
-// Always use KJV
-const currentBibleVersion = bibleVersions.kjv;
+// KJV display name (used by subtitle)
+const currentBibleVersion = { name: 'King James Version' };
 
 // Notes & highlights state
 let notes = JSON.parse(localStorage.getItem('bible_notes') || '[]');
@@ -106,26 +73,6 @@ async function loadBooks(){
   renderBooks();
   // Fetch images for books
   await fetchBookImages();
-}
-
-// populate voice selector and wire controls
-function populateVoiceList(){
-  if(!voiceSelect) return;
-  const voices = speechSynthesis.getVoices() || [];
-  const cur = localStorage.getItem('bible_voice') || '';
-  voiceSelect.innerHTML = '';
-  voices.forEach(v=>{
-    const opt = document.createElement('option');
-    opt.value = v.name || `${v.lang}-${v.name}`;
-    opt.textContent = `${v.name} (${v.lang})`;
-    if(opt.value === cur) opt.selected = true;
-    voiceSelect.appendChild(opt);
-  });
-  // set rate/pitch from storage
-  const r = parseFloat(localStorage.getItem('bible_rate') || rateRange.value);
-  const p = parseFloat(localStorage.getItem('bible_pitch') || pitchRange.value);
-  rateRange.value = r;
-  pitchRange.value = p;
 }
 
 // Event listeners will be set up in initializeApp()
@@ -276,17 +223,16 @@ function renderChapters(book){
   }
 }
 
-// Helper function to fetch verses from configured API (remote bible-api or local backend)
+// Helper function to fetch verses from the FastAPI backend
 async function fetchVerses(ref){
   // ref expected like "BookName 3" or "BookName 3:16"
-  const savedVersion = localStorage.getItem('bible_version') || 'kjv';
   const m = String(ref||'').trim().match(/^(.+?)\s+(\d+)(?::(\d+))?$/);
   if(!m) return null;
   const book = m[1];
   const chapter = m[2];
   const verseNum = m[3] ? parseInt(m[3],10) : null;
 
-  const url = getApiUrl(book, chapter, savedVersion);
+  const url = getApiUrl(book, chapter);
   if(!url) return null;
 
   try{
@@ -324,8 +270,6 @@ async function fetchChapter(book, chapter, btn){
   versesEl.innerHTML = '<div class="muted" style="text-align:center;padding:40px;"><div style="display:inline-block;width:40px;height:40px;border:4px solid rgba(139,94,52,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;"></div><p style="margin-top:16px;">Loading chapter...</p></div>';
   
   const ref = `${book} ${chapter}`;
-  const savedVersion = localStorage.getItem('bible_version') || 'kjv';
-  
   try{
     const data = await fetchVerses(ref);
     
@@ -359,7 +303,9 @@ function displayVerses(data){
     // store lastChapter for chapter playback
     lastChapter = { book: data.book_name || (data.reference||'').split(' ')[0], chapter: data.chapter || null, verses: data.verses };
     data.verses.forEach((v, index)=>{
-      const id = `verse-${slugify(data.book_name || data.reference || '')}-${data.chapter || ''}-${v.verse}`;
+      const bookName = data.book_name || (data.reference||'').split(' ')[0];
+      const chapterNum = data.chapter || '';
+      const id = `verse-${slugify(bookName)}-${chapterNum}-${v.verse}`;
       const p = el('p','verse');
       p.id = id;
       p.style.opacity = '0';
@@ -379,9 +325,20 @@ function displayVerses(data){
       const existingNote = notes.find(n=> n.id === id);
       if(existingNote) noteBtn.classList.add('has-note');
       noteBtn.addEventListener('click', ()=>{
-        openNoteModal(id, {book: data.book_name || (data.reference||'').split(' ')[0], chapter: data.chapter || '', verse: v.verse, text: v.text});
+        openNoteModal(id, {book: bookName, chapter: chapterNum, verse: v.verse, text: v.text});
       });
       p.appendChild(noteBtn);
+      // explain button
+      const commentary = el('div', 'verse-commentary');
+      commentary.hidden = true;
+      const explainBtn = el('button', 'explain-btn');
+      explainBtn.setAttribute('aria-label', `Explain verse ${v.verse}`);
+      explainBtn.textContent = 'Explain';
+      explainBtn.addEventListener('click', ()=>{
+        explainBtn.classList.toggle('active', commentary.hidden);
+        explainVerse(bookName, chapterNum, v.verse, v.text, commentary);
+      });
+      p.appendChild(explainBtn);
       const num = el('span','verse-num', v.verse);
       p.appendChild(num);
       const textNode = document.createElement('span');
@@ -391,10 +348,11 @@ function displayVerses(data){
       textNode.addEventListener('mouseup', ()=>{
         const selection = window.getSelection();
         if(selection && selection.toString().trim().length > 0){
-          addHighlight(id, {book: data.book_name || (data.reference||'').split(' ')[0], chapter: data.chapter || '', verse: v.verse, text: selection.toString()});
+          addHighlight(id, {book: bookName, chapter: chapterNum, verse: v.verse, text: selection.toString()});
         }
       });
       p.appendChild(textNode);
+      p.appendChild(commentary);
       versesEl.appendChild(p);
       // Staggered fade-in animation
       setTimeout(()=>{
@@ -573,17 +531,11 @@ function initializeApp(){
   searchMeta = document.getElementById('searchMeta');
   resultsList = document.getElementById('resultsList');
   paginationEl = document.getElementById('pagination');
-  voiceSelect = document.getElementById('voiceSelect');
+  aiVoiceSelect = document.getElementById('aiVoiceSelect');
   rateRange = document.getElementById('rateRange');
-  pitchRange = document.getElementById('pitchRange');
-  cloudToggle = document.getElementById('cloudToggle');
-  cloudProvider = document.getElementById('cloudProvider');
-  cloudVoice = document.getElementById('cloudVoice');
   settingsBtn = document.getElementById('settingsBtn');
   settingsPanel = document.getElementById('settingsPanel');
   rateValue = document.getElementById('rateValue');
-  pitchValue = document.getElementById('pitchValue');
-  translationSelect = document.getElementById('translationSelect');
   
   if(!booksList) {
     console.error('booksList element not found!');
@@ -687,16 +639,19 @@ function setupEventListeners(){
   const pauseChapterBtn = document.getElementById('pauseChapterBtn');
   const stopChapterBtn = document.getElementById('stopChapterBtn');
   
-  if(readChapterBtn && activeBook){
+  if(readChapterBtn){
     readChapterBtn.addEventListener('click', ()=>{
-      if(activeBook && activeBook.chapters){
-        const firstChapter = 1;
-        playChapter(activeBook.name, firstChapter);
+      if(lastChapter && lastChapter.book && lastChapter.chapter){
+        playChapter(lastChapter.book, lastChapter.chapter);
+      } else if(activeBook){
+        playChapter(activeBook.name, 1);
       }
     });
   }
   if(pauseChapterBtn){
-    pauseChapterBtn.addEventListener('click', pauseChapter);
+    pauseChapterBtn.addEventListener('click', ()=>{
+      if(chapterPlaying) pauseChapter(); else resumeChapter();
+    });
   }
   if(stopChapterBtn){
     stopChapterBtn.addEventListener('click', stopChapter);
@@ -712,34 +667,26 @@ function setupEventListeners(){
 }
 
 function setupVoiceControls(){
-  if(window.speechSynthesis){
-    populateVoiceList();
-    speechSynthesis.addEventListener('voiceschanged', populateVoiceList);
-  }
-
-  if(voiceSelect){
-    voiceSelect.addEventListener('change', ()=>{
-      localStorage.setItem('bible_voice', voiceSelect.value);
+  if(aiVoiceSelect){
+    const saved = localStorage.getItem('bible_ai_voice') || 'onyx';
+    aiVoiceSelect.value = saved;
+    aiVoiceSelect.addEventListener('change', ()=>{
+      localStorage.setItem('bible_ai_voice', aiVoiceSelect.value);
     });
   }
-  if(rateRange && rateValue){ 
-    rateRange.addEventListener('input', ()=> {
-      localStorage.setItem('bible_rate', rateRange.value);
+  if(rateRange && rateValue){
+    const savedRate = parseFloat(localStorage.getItem('bible_ai_speed') || '1.0');
+    rateRange.value = savedRate;
+    rateValue.textContent = savedRate.toFixed(2) + 'x';
+    rateRange.addEventListener('input', ()=>{
+      localStorage.setItem('bible_ai_speed', rateRange.value);
       rateValue.textContent = parseFloat(rateRange.value).toFixed(2) + 'x';
     });
-    rateValue.textContent = parseFloat(rateRange.value).toFixed(2) + 'x';
-  }
-  if(pitchRange && pitchValue){ 
-    pitchRange.addEventListener('input', ()=> {
-      localStorage.setItem('bible_pitch', pitchRange.value);
-      pitchValue.textContent = parseFloat(pitchRange.value).toFixed(2) + 'x';
-    });
-    pitchValue.textContent = parseFloat(pitchRange.value).toFixed(2) + 'x';
   }
 }
 
-// ---------------- Speech (per-verse) ----------------
-let currentUtterance = null;
+// ---------------- AI TTS (per-verse) ----------------
+let currentAudio = null;
 let currentVerseId = null;
 // chapter playback state
 let lastChapter = null; // {book, chapter, verses}
@@ -747,128 +694,140 @@ let chapterQueue = [];
 let chapterIndex = 0;
 let chapterPlaying = false;
 
-function getPreferredMaleVoice(){
-  const voices = speechSynthesis.getVoices() || [];
-  const preferred = ['Daniel','David','John','Alex','Zachary','Fred','Google US English','Microsoft David'];
-  for(const name of preferred){
-    const v = voices.find(x=> x.name && x.name.includes(name));
-    if(v) return v;
-  }
-  // fallback: first english voice
-  const en = voices.find(x=> x.lang && x.lang.startsWith('en'));
-  return en || voices[0] || null;
-}
-
-// expose available voices for debugging
-window.__bible_voices = ()=> (speechSynthesis.getVoices()||[]).map(v=> ({name:v.name, lang:v.lang}));
-
-function speakVerse(text, verseId, btn){
-  // if cloud toggle enabled, use cloud TTS
-  try{
-    if(cloudToggle && cloudToggle.checked){
-      const provider = (cloudProvider && cloudProvider.value) || 'google';
-      const cv = (cloudVoice && cloudVoice.value) || '';
-      fetchAndPlayCloud(text, provider, cv, verseId, btn);
-      return;
-    }
-  }catch(e){}
-  // stop if same verse is playing -> cancel
-  if(currentVerseId === verseId){
-    speechSynthesis.cancel();
+async function speakVerse(text, verseId, btn){
+  // Toggle off if same verse clicked again
+  if(currentVerseId === verseId && currentAudio){
+    currentAudio.pause();
+    currentAudio = null;
     currentVerseId = null;
     if(btn) btn.classList.remove('playing');
+    const node = document.getElementById(verseId);
+    if(node) node.classList.remove('speaking');
     return;
   }
-  // cancel any previous
-  speechSynthesis.cancel();
-  if(btn) document.querySelectorAll('.play-btn.playing').forEach(b=> b.classList.remove('playing'));
-
-  const utter = new SpeechSynthesisUtterance(text);
-  // use chosen rate/pitch if available
-  const storedRate = parseFloat(localStorage.getItem('bible_rate')) || 0.95;
-  const storedPitch = parseFloat(localStorage.getItem('bible_pitch')) || 1.0;
-  utter.rate = storedRate;
-  utter.pitch = storedPitch;
-  utter.lang = 'en-US';
-  // prefer selected voice
-  let selectedVoice = null;
-  try{
-    const chosen = localStorage.getItem('bible_voice');
-    if(chosen){
-      const voices = speechSynthesis.getVoices() || [];
-      selectedVoice = voices.find(v=> v.name === chosen || `${v.lang}-${v.name}` === chosen) || null;
-    }
-  }catch(e){ selectedVoice = null }
-  if(selectedVoice) utter.voice = selectedVoice; else {
-    const voice = getPreferredMaleVoice();
-    if(voice) utter.voice = voice;
+  // Stop any previous audio
+  if(currentAudio){
+    currentAudio.pause();
+    currentAudio = null;
   }
+  document.querySelectorAll('.play-btn.playing').forEach(b=> b.classList.remove('playing'));
+  document.querySelectorAll('.verse.speaking').forEach(n=> n.classList.remove('speaking'));
 
-  utter.onstart = ()=>{
-    currentUtterance = utter;
-    currentVerseId = verseId;
+  const voice = localStorage.getItem('bible_ai_voice') || 'onyx';
+  const speed = parseFloat(localStorage.getItem('bible_ai_speed') || '1.0');
+  const node = document.getElementById(verseId);
+
+  try{
     if(btn) btn.classList.add('playing');
-    const node = document.getElementById(verseId);
     if(node) node.classList.add('speaking');
-  };
-  utter.onend = ()=>{
-    if(btn) btn.classList.remove('playing');
-    const node = document.getElementById(verseId);
-    if(node) node.classList.remove('speaking');
-    currentUtterance = null;
-    currentVerseId = null;
-  };
-  utter.onerror = ()=>{
-    if(btn) btn.classList.remove('playing');
-    const node = document.getElementById(verseId);
-    if(node) node.classList.remove('speaking');
-    currentUtterance = null;
-    currentVerseId = null;
-  };
-  // ensure voices are loaded
-  if((speechSynthesis.getVoices()||[]).length === 0){
-    speechSynthesis.addEventListener('voiceschanged', ()=>{
-      const v = getPreferredMaleVoice(); if(v) utter.voice = v; speechSynthesis.speak(utter);
-    }, {once:true});
-  } else {
-    speechSynthesis.speak(utter);
-  }
-}
+    currentVerseId = verseId;
 
-// ---------------- Cloud TTS client ----------------
-async function fetchAndPlayCloud(text, provider, voiceName, verseId, btn){
-  try{
-    const body = { text, provider, voice: voiceName, rate: parseFloat(localStorage.getItem('bible_rate')||rateRange.value), pitch: parseFloat(localStorage.getItem('bible_pitch')||pitchRange.value) };
-    const res = await fetch('http://localhost:3000/tts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    if(!res.ok) throw new Error('TTS failed');
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text, voice, speed}),
+    });
+    if(!res.ok) throw new Error('TTS request failed');
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
-    // UI
-    if(btn) btn.classList.add('playing');
-    const node = document.getElementById(verseId); if(node) node.classList.add('speaking');
-    await playAudioElement(audio);
+    currentAudio = audio;
+
+    const cleanup = ()=>{
+      if(btn) btn.classList.remove('playing');
+      if(node) node.classList.remove('speaking');
+      if(currentVerseId === verseId){ currentAudio = null; currentVerseId = null; }
+      URL.revokeObjectURL(url);
+    };
+    audio.addEventListener('ended', cleanup);
+    audio.addEventListener('error', cleanup);
+    await audio.play();
+  }catch(err){
+    console.warn('AI TTS error', err);
     if(btn) btn.classList.remove('playing');
     if(node) node.classList.remove('speaking');
-    URL.revokeObjectURL(url);
-  }catch(err){
-    console.warn('Cloud TTS error', err);
+    currentAudio = null;
+    currentVerseId = null;
   }
 }
 
-function playAudioElement(audio){
-  return new Promise((resolve,reject)=>{
-    audio.addEventListener('ended', ()=> resolve());
-    audio.addEventListener('error', (e)=> reject(e));
-    audio.play().catch(reject);
+// For sequential chapter playback — resolves when audio finishes
+function speakVerseAndWait(text, verseId, btn){
+  return new Promise(async (resolve)=>{
+    const voice = localStorage.getItem('bible_ai_voice') || 'onyx';
+    const speed = parseFloat(localStorage.getItem('bible_ai_speed') || '1.0');
+    const node = document.getElementById(verseId);
+    try{
+      if(btn) btn.classList.add('playing');
+      if(node) node.classList.add('speaking');
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text, voice, speed}),
+      });
+      if(!res.ok) throw new Error('TTS failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      currentAudio = audio;
+      const cleanup = ()=>{
+        if(btn) btn.classList.remove('playing');
+        if(node) node.classList.remove('speaking');
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      audio.addEventListener('ended', cleanup);
+      audio.addEventListener('error', cleanup);
+      await audio.play();
+    }catch(err){
+      console.warn('TTS error', err);
+      if(btn) btn.classList.remove('playing');
+      if(node) node.classList.remove('speaking');
+      resolve();
+    }
   });
 }
 
-// ---------------- Chapter playback ----------------
-const readBtn = document.getElementById('readChapterBtn');
-const pauseBtn = document.getElementById('pauseChapterBtn');
-const stopBtn = document.getElementById('stopChapterBtn');
+// ---------------- AI Commentary (SSE) ----------------
+function explainVerse(book, chapter, verse, text, container){
+  // Toggle: collapse if already visible
+  if(!container.hidden){
+    container.hidden = true;
+    return;
+  }
+  container.hidden = false;
+  container.innerHTML = '<p class="commentary-loading">Generating commentary…</p>';
 
+  const params = new URLSearchParams({book, chapter, verse, text});
+  const es = new EventSource(`/api/commentary?${params}`);
+  let accumulated = '';
+  let p = null;
+
+  es.onmessage = (e)=>{
+    if(e.data === '[DONE]'){ es.close(); return; }
+    if(e.data.startsWith('[ERROR]')){
+      container.innerHTML = '<p class="commentary-error">Could not load commentary.</p>';
+      es.close();
+      return;
+    }
+    if(!p){
+      container.innerHTML = '';
+      p = document.createElement('p');
+      p.className = 'commentary-text';
+      container.appendChild(p);
+    }
+    accumulated += e.data;
+    p.textContent = accumulated;
+  };
+  es.onerror = ()=>{
+    if(!accumulated){
+      container.innerHTML = '<p class="commentary-error">Could not load commentary.</p>';
+    }
+    es.close();
+  };
+}
+
+// ---------------- Chapter playback ----------------
 async function playChapter(book, chapter){
   // Ensure we have the chapter data; if not, fetch it
   // 'book' parameter should be English name for API
@@ -890,53 +849,50 @@ async function playChapter(book, chapter){
   readNextInChapter();
 }
 
-function readNextInChapter(){
-  if(!chapterPlaying) return;
-  if(chapterIndex >= chapterQueue.length){ chapterPlaying = false; return; }
-  const item = chapterQueue[chapterIndex];
-  // highlight
-  document.querySelectorAll('.verse.speaking').forEach(n=> n.classList.remove('speaking'));
-  const node = document.getElementById(item.id);
-  if(node) node.classList.add('speaking');
-  // create utterance and play, advancing index on end
-  const utter = new SpeechSynthesisUtterance(item.text);
-  const storedRate = parseFloat(localStorage.getItem('bible_rate')) || 0.95;
-  const storedPitch = parseFloat(localStorage.getItem('bible_pitch')) || 1.0;
-  utter.rate = storedRate; utter.pitch = storedPitch; utter.lang = 'en-US';
-  try{ const chosen = localStorage.getItem('bible_voice'); if(chosen){ const voices = speechSynthesis.getVoices()||[]; const sel = voices.find(v=> v.name===chosen||`${v.lang}-${v.name}`===chosen); if(sel) utter.voice = sel; } }catch(e){}
-  utter.onend = ()=>{
-    // remove speaking highlight
-    const n = document.getElementById(item.id); if(n) n.classList.remove('speaking');
+async function readNextInChapter(){
+  while(chapterPlaying && chapterIndex < chapterQueue.length){
+    const item = chapterQueue[chapterIndex];
+    document.querySelectorAll('.verse.speaking').forEach(n=> n.classList.remove('speaking'));
+    const node = document.getElementById(item.id);
+    if(node){ node.classList.add('speaking'); node.scrollIntoView({behavior:'smooth', block:'center'}); }
+    const playBtn = node ? node.querySelector('.play-btn') : null;
+    await speakVerseAndWait(item.text, item.id, playBtn);
+    document.querySelectorAll('.verse.speaking').forEach(n=> n.classList.remove('speaking'));
     chapterIndex++;
-    // small gap between verses
-    setTimeout(()=>{ if(chapterPlaying) readNextInChapter(); }, 220);
-  };
-  utter.onerror = ()=>{ chapterPlaying = false; };
-  // play
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utter);
+    if(chapterPlaying && chapterIndex < chapterQueue.length){
+      await new Promise(r=> setTimeout(r, 220));
+    }
+  }
+  chapterPlaying = false;
 }
 
 function pauseChapter(){
-  if(speechSynthesis.speaking && !speechSynthesis.paused){ speechSynthesis.pause(); }
-}
-function resumeChapter(){
-  if(speechSynthesis.paused){ speechSynthesis.resume(); }
-}
-function stopChapter(){
-  chapterPlaying = false; chapterQueue = []; chapterIndex = 0; speechSynthesis.cancel();
-  document.querySelectorAll('.verse.speaking').forEach(n=> n.classList.remove('speaking'));
+  chapterPlaying = false;
+  if(currentAudio && !currentAudio.paused) currentAudio.pause();
 }
 
-if(readBtn) readBtn.addEventListener('click', ()=>{
-  // if a chapter is currently shown, use it; otherwise use activeBook and first chapter
-  if(lastChapter && lastChapter.book && lastChapter.chapter){ playChapter(lastChapter.book, lastChapter.chapter); }
-  else if(activeBook){ playChapter(activeBook.name, 1); }
-});
-if(pauseBtn) pauseBtn.addEventListener('click', ()=>{
-  if(speechSynthesis.paused) resumeChapter(); else pauseChapter();
-});
-if(stopBtn) stopBtn.addEventListener('click', ()=> stopChapter());
+function resumeChapter(){
+  if(!chapterPlaying && chapterIndex < chapterQueue.length){
+    chapterPlaying = true;
+    if(currentAudio && currentAudio.paused){
+      currentAudio.play();
+    } else {
+      readNextInChapter();
+    }
+  }
+}
+
+function stopChapter(){
+  chapterPlaying = false;
+  chapterQueue = [];
+  chapterIndex = 0;
+  if(currentAudio){ currentAudio.pause(); currentAudio = null; }
+  currentVerseId = null;
+  document.querySelectorAll('.verse.speaking').forEach(n=> n.classList.remove('speaking'));
+  document.querySelectorAll('.play-btn.playing').forEach(b=> b.classList.remove('playing'));
+}
+
+// Chapter playback buttons are wired in setupEventListeners()
 
 // ---------------- Notes & Highlights ----------------
 const notesPageBtn = document.getElementById('notesPageBtn');
