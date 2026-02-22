@@ -34,12 +34,18 @@ No build step, test suite, or linter is configured.
 ## Architecture
 
 Single FastAPI server on port 3000 that:
-1. Serves all static files (`index.html`, `script.js`, `styles.css`, etc.) via `StaticFiles` mount
+1. Serves all static files (`index.html`, `styles.css`, `js/*.js`, etc.) via `StaticFiles` mount
 2. Provides Bible data from local KJV JSON files
 3. Proxies OpenAI TTS requests
 4. Streams GPT-4o-mini commentary via SSE
 
-`script.js` drives all client-side logic; `index.html` is the shell; `styles.css` provides the sepia/paper theme.
+Frontend is split across plain scripts loaded in order:
+- `js/app.js` (shared state, app setup, books/recent, shared helpers)
+- `js/reader.js` (chapter fetch/render, search, TTS, commentary, playback)
+- `js/notes.js` (notes/highlights modal and notes page)
+- `js/characters.js` (characters filtering/detail views)
+- `js/hero.js` (hero controls)
+- `js/bootstrap.js` (runs `initializeApp()`)
 
 ### Backend API endpoints (`server/main.py`)
 
@@ -61,16 +67,12 @@ All frontend API calls use **relative paths** (e.g. `/api/bible/genesis/1`) — 
 - `characters.json` — 66+ biblical characters with facts and appearances
 - `bibles/kjv_json/` — Local KJV text (index.json + per-book JSON files)
 
-### Key areas in `script.js`
+### Key frontend areas
 
-- `getApiUrl(book, chapter)` — builds relative `/api/bible/{slug}/{chapter}` URLs
-- `speakVerse(text, verseId, btn)` — fetches `/api/tts`, plays MP3 via `new Audio()`
-- `speakVerseAndWait(text, verseId, btn)` — promise-based, used for chapter sequential playback
-- `readNextInChapter()` — async loop over verse queue, 220ms gap between verses
-- `explainVerse(book, chapter, verse, text, container)` — opens `EventSource` on `/api/commentary`, streams tokens
-- `displayVerses(data)` — renders verses with play / note / explain buttons
-- Notes & highlights system — persisted to `localStorage`
-- Character filtering and rendering
+- `js/app.js`: `getApiUrl(book, chapter)`, `loadBooks()`, `renderBooks()`, `initializeApp()`
+- `js/reader.js`: `displayVerses(data)`, `speakVerse(...)`, `speakVerseAndWait(...)`, `readNextInChapter()`, `explainVerse(...)`
+- `js/notes.js`: notes/highlights CRUD persisted in `localStorage`
+- `js/characters.js`: character list/filter/detail rendering
 
 ### Settings panel (`index.html`)
 

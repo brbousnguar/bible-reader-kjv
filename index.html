@@ -7,259 +7,6 @@
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    /* Modern Hero Video Styles */
-    .hero { 
-      position: relative; 
-      width: 100%; 
-      overflow: hidden; 
-      background: #1a1a1a;
-      min-height: 60vh;
-      max-height: 75vh;
-      display: flex;
-      align-items: center;
-    }
-    
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(43,27,14,0.75) 0%, rgba(0,0,0,0.5) 50%, rgba(43,27,14,0.4) 100%);
-      z-index: 1;
-      pointer-events: none;
-    }
-    
-    .hero-video { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: cover; 
-      display: block;
-      filter: brightness(0.6) contrast(1.1);
-      transition: filter 0.3s ease;
-    }
-    
-    .hero:hover .hero-video {
-      filter: brightness(0.7) contrast(1.15);
-    }
-    
-    .hero-overlay { 
-      position: absolute; 
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      align-items: center;
-      padding: 0 5%;
-      z-index: 2;
-      color: #fff;
-    }
-    
-    .hero-content { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 20px; 
-      max-width: 650px;
-      animation: fadeInUp 0.8s ease-out;
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .hero-icon { 
-      font-size: 4rem; 
-      margin-bottom: 4px; 
-      animation: float 4s ease-in-out infinite; 
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
-      opacity: 0.95;
-    }
-    
-    @keyframes float { 
-      0%, 100% { transform: translateY(0px) rotate(0deg); } 
-      50% { transform: translateY(-12px) rotate(2deg); } 
-    }
-    
-    .hero-overlay h2 { 
-      margin: 0; 
-      font-size: clamp(2rem, 5vw, 3rem); 
-      font-weight: 700; 
-      line-height: 1.2; 
-      letter-spacing: -0.02em;
-      text-shadow: 0 4px 20px rgba(0,0,0,0.6);
-    }
-    
-    .hero-divider { 
-      width: 100px; 
-      height: 4px; 
-      background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4)); 
-      border-radius: 2px; 
-      margin: 4px 0 8px 0;
-    }
-    
-    .hero-overlay p { 
-      margin: 0; 
-      font-size: clamp(1rem, 2vw, 1.25rem); 
-      opacity: 0.95; 
-      line-height: 1.6;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-      max-width: 90%;
-    }
-    
-    .hero-cta {
-      margin-top: 8px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    
-    .hero-btn {
-      padding: 14px 28px;
-      border-radius: 10px;
-      border: 2px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      color: #fff;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-    
-    .hero-btn:hover {
-      background: rgba(255,255,255,0.25);
-      border-color: rgba(255,255,255,0.5);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    
-    .hero-btn-primary {
-      background: rgba(139,94,52,0.9);
-      border-color: rgba(139,94,52,1);
-    }
-    
-    .hero-btn-primary:hover {
-      background: rgba(139,94,52,1);
-      box-shadow: 0 6px 20px rgba(139,94,52,0.4);
-    }
-    
-    .hero-controls {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      gap: 10px;
-      z-index: 3;
-    }
-    
-    .hero-control-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.3);
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(10px);
-      color: #fff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      transition: all 0.3s ease;
-    }
-    
-    .hero-control-btn:hover {
-      background: rgba(0,0,0,0.7);
-      border-color: rgba(255,255,255,0.5);
-      transform: scale(1.1);
-    }
-    
-    .visually-hidden { 
-      position: absolute !important; 
-      height: 1px; 
-      width: 1px; 
-      overflow: hidden; 
-      clip: rect(1px, 1px, 1px, 1px); 
-      white-space: nowrap; 
-    }
-    
-    @media (max-width: 980px) {
-      .hero {
-        min-height: 50vh;
-        max-height: 65vh;
-      }
-      .hero-overlay {
-        padding: 0 4%;
-      }
-      .hero-content {
-        gap: 16px;
-      }
-      .hero-icon {
-        font-size: 3rem;
-      }
-      .hero-controls {
-        bottom: 15px;
-        right: 15px;
-      }
-      .hero-control-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-      }
-    }
-    
-    @media (max-width: 720px) { 
-      .hero {
-        min-height: 45vh;
-        max-height: 55vh;
-      }
-      .hero-overlay {
-        padding: 0 20px;
-      }
-      .hero-content {
-        gap: 12px;
-      }
-      .hero-overlay p {
-        max-width: 100%;
-      }
-      .hero-cta {
-        flex-direction: column;
-        width: 100%;
-      }
-      .hero-btn {
-        width: 100%;
-        justify-content: center;
-      }
-      .hero-controls {
-        bottom: 10px;
-        right: 10px;
-        gap: 8px;
-      }
-      .hero-control-btn {
-        width: 36px;
-        height: 36px;
-      }
-    }
-    
-    @media (prefers-reduced-motion: reduce) {
-      .hero-video,
-      .hero-icon,
-      .hero-content {
-        animation: none;
-      }
-    }
-  </style>
 </head>
 <body>
   <header class="topbar">
@@ -355,26 +102,55 @@
   </section>
 
   <div class="container" id="mainContainer">
-    <aside class="sidebar" id="mainSidebar">
-      <div id="booksList" class="books"></div>
-    </aside>
-
     <main class="content" id="mainContent">
-
-      <div id="chapterPicker" class="chapters" role="group" aria-label="Chapter selection"></div>
-      <div id="chapterControls" class="chapter-controls" role="group" aria-label="Chapter playback controls">
-        <button id="readChapterBtn" class="chapter-action" aria-label="Read entire chapter">▶ Read Chapter</button>
-        <button id="pauseChapterBtn" class="chapter-action" aria-label="Pause playback">⏸ Pause</button>
-        <button id="stopChapterBtn" class="chapter-action" aria-label="Stop playback">⏹ Stop</button>
-      </div>
-
-      <section id="searchResults" class="search-results" aria-live="polite" hidden>
-        <div id="searchMeta" class="search-meta"></div>
-        <div id="resultsList" class="results-list"></div>
-        <div id="pagination" class="pagination"></div>
+      <section id="libraryView" class="library-view" aria-labelledby="libraryTitle">
+        <div class="library-header">
+          <div>
+            <h2 id="libraryTitle">Library</h2>
+            <p class="library-subtitle">Choose a book to open its chapters.</p>
+          </div>
+        </div>
+        <section id="recentBooks" class="recent-books" hidden>
+          <div class="recent-header">
+            <h3>Recent</h3>
+            <p>Jump back into the books you opened last.</p>
+          </div>
+          <div id="recentBooksGrid" class="books recent-grid"></div>
+        </section>
+        <section id="recentNotes" class="recent-notes" hidden>
+          <div class="recent-header">
+            <h3>Recent Notes</h3>
+            <p>Pick up where you left off.</p>
+          </div>
+          <div id="recentNotesList" class="recent-notes-list"></div>
+        </section>
+        <div id="booksList" class="books library-grid"></div>
       </section>
 
-      <article id="verses" class="verses"></article>
+      <section id="readerView" class="reader-view">
+        <section id="chapterDrawer" class="chapter-drawer" aria-labelledby="drawerTitle">
+          <div class="drawer-header">
+            <div>
+              <div id="drawerTitle" class="drawer-title">Chapters</div>
+              <div id="drawerSubtitle" class="drawer-subtitle">Select a book to load chapters.</div>
+            </div>
+          </div>
+          <div id="chapterPicker" class="chapters" role="group" aria-label="Chapter selection"></div>
+          <div id="chapterControls" class="chapter-controls" role="group" aria-label="Chapter playback controls">
+            <button id="readChapterBtn" class="chapter-action" aria-label="Read entire chapter">▶ Read Chapter</button>
+            <button id="pauseChapterBtn" class="chapter-action" aria-label="Pause playback">⏸ Pause</button>
+            <button id="stopChapterBtn" class="chapter-action" aria-label="Stop playback">⏹ Stop</button>
+          </div>
+        </section>
+
+        <section id="searchResults" class="search-results" aria-live="polite" hidden>
+          <div id="searchMeta" class="search-meta"></div>
+          <div id="resultsList" class="results-list"></div>
+          <div id="pagination" class="pagination"></div>
+        </section>
+
+        <article id="verses" class="verses"></article>
+      </section>
     </main>
 
     <section id="notesPage" class="notes-page" hidden>
@@ -438,11 +214,16 @@
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-divider"></div>
-      <p>Using the public-domain King James Version (KJV) via <a href="https://bible-api.com/">bible-api.com</a></p>
+      <p>Using the public-domain King James Version (KJV) from local text files.</p>
       <div class="footer-verse">"Thy word is a lamp unto my feet, and a light unto my path." — Psalm 119:105</div>
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/reader.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/hero.js"></script>
+  <script src="js/bootstrap.js"></script>
 </body>
 </html>

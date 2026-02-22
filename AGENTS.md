@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Frontend is plain HTML/CSS/JS at the repo root: `index.html`, `script.js`, `styles.css`.
+- Frontend is plain HTML/CSS/JS at the repo root: `index.html`, `styles.css`, and modular scripts under `js/`.
 - Static data lives in `books.json`, `book_meta.json`, `characters.json`, and `bibles/kjv_json/`.
 - Media assets are in `videos/` and `logo.png`.
 - Backend is a FastAPI app in `server/main.py` (serves static files plus API endpoints).
@@ -25,7 +25,7 @@
   - `npm run start` (starts `server/index.js` on its own port; client must be pointed at it if used)
 
 ## Coding Style & Naming Conventions
-- JavaScript and CSS are hand-written; keep functions small and readable in `script.js`.
+- JavaScript and CSS are hand-written; keep functions small and readable in the `js/` modules.
 - Follow existing naming patterns: `camelCase` for JS functions/variables, `kebab-case` for CSS classes.
 - Keep API paths relative (e.g., `/api/bible/genesis/1`) to avoid hardcoding ports.
 - No formatter/linter is configured; keep diffs tight and consistent with current style.

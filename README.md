@@ -60,7 +60,13 @@ Open **http://localhost:3000**.
 ```
 bible/
 ├── index.html          # App shell
-├── script.js           # All client-side logic
+├── js/
+│   ├── app.js          # App state, bootstrap helpers, book loading
+│   ├── reader.js       # Reader/search/TTS/commentary/chapter playback
+│   ├── notes.js        # Notes/highlights pages and persistence
+│   ├── characters.js   # Characters page logic
+│   ├── hero.js         # Hero video interactions
+│   └── bootstrap.js    # App initialization after script load
 ├── styles.css          # Sepia/paper theme
 ├── books.json          # 66-book metadata (testament / category)
 ├── book_meta.json      # Curated reviews for major books
