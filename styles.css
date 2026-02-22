@@ -730,6 +730,56 @@ body::before{
   animation:slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.share-popover{
+  position:fixed;
+  top:84px;
+  right:28px;
+  z-index:60;
+}
+
+.share-card{
+  width:min(320px, calc(100vw - 32px));
+  background:var(--surface);
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:14px;
+  box-shadow:0 14px 28px rgba(20,10,4,0.18);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.share-title{
+  font-size:0.92rem;
+  font-weight:700;
+  color:var(--text);
+}
+
+#qrCanvas{
+  width:220px;
+  height:220px;
+  align-self:center;
+  border-radius:10px;
+  background:#fff;
+}
+
+.qr-image{
+  width:220px;
+  height:220px;
+  align-self:center;
+  border-radius:10px;
+  background:#fff;
+}
+
+.share-url-input{
+  font-size:0.8rem;
+}
+
+.share-actions{
+  display:flex;
+  gap:8px;
+}
+
 @keyframes slideDown{
   from{
     opacity:0;
@@ -1564,6 +1614,14 @@ body::before{
   .book-btn{
     padding:12px;
     gap:10px;
+  }
+  .share-popover{
+    top:74px;
+    right:12px;
+    left:12px;
+  }
+  .share-card{
+    width:100%;
   }
 }
 

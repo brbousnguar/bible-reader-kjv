@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.responses import StreamingResponse, Response, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pathlib import Path
 from openai import AsyncOpenAI
 import base64
@@ -9,6 +9,9 @@ import hashlib
 import hmac
 import json
 import os
+import sqlite3
+import socket
+import subprocess
 import time
 from dotenv import load_dotenv
 
@@ -42,6 +45,39 @@ if not _auth_user:
     raise RuntimeError('APP_LOGIN_USER must be set')
 if not _auth_pass_hash:
     raise RuntimeError('APP_LOGIN_PASSWORD_HASH must be set')
+
+_db_path_default = Path('/var/data/bible_app.db') if Path('/var/data').exists() else (Path(__file__).resolve().parent / 'bible_app.db')
+_db_path = Path(os.environ.get('APP_DATA_DB_PATH', str(_db_path_default)))
+
+
+def _db_connect():
+    _db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(_db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def _init_db():
+    conn = _db_connect()
+    try:
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS user_state (
+                username TEXT PRIMARY KEY,
+                notes TEXT NOT NULL DEFAULT '[]',
+                highlights TEXT NOT NULL DEFAULT '[]',
+                recent_books TEXT NOT NULL DEFAULT '[]',
+                read_map TEXT NOT NULL DEFAULT '{}',
+                updated_at INTEGER NOT NULL
+            )
+            '''
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+_init_db()
 
 
 def load_kjv_index():
@@ -115,8 +151,10 @@ def parse_auth_token(token: str):
 
 def require_auth(request: Request):
     token = request.cookies.get(_auth_cookie_name, '')
-    if not token or not parse_auth_token(token):
+    payload = parse_auth_token(token) if token else None
+    if not payload:
         raise HTTPException(status_code=401, detail='Authentication required for TTS')
+    return payload
 
 
 def verify_password(password: str, stored_hash: str) -> bool:
@@ -142,6 +180,13 @@ def verify_password(password: str, stored_hash: str) -> bool:
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+
+class UserStateRequest(BaseModel):
+    notes: list = Field(default_factory=list)
+    highlights: list = Field(default_factory=list)
+    recent_books: list = Field(default_factory=list)
+    read_map: dict = Field(default_factory=dict)
 
 
 @app.get('/api/auth/status')
@@ -174,6 +219,73 @@ def auth_logout():
     res = Response(content=json.dumps({'ok': True}), media_type='application/json')
     res.delete_cookie(_auth_cookie_name, path='/')
     return res
+
+
+def _safe_json_loads(raw: str, fallback):
+    try:
+        return json.loads(raw)
+    except Exception:
+        return fallback
+
+
+@app.get('/api/user/state')
+def get_user_state(request: Request):
+    payload = require_auth(request)
+    username = payload['u']
+    conn = _db_connect()
+    try:
+        row = conn.execute(
+            'SELECT notes, highlights, recent_books, read_map FROM user_state WHERE username = ?',
+            (username,),
+        ).fetchone()
+        if not row:
+            return {
+                'notes': [],
+                'highlights': [],
+                'recent_books': [],
+                'read_map': {},
+            }
+        return {
+            'notes': _safe_json_loads(row['notes'], []),
+            'highlights': _safe_json_loads(row['highlights'], []),
+            'recent_books': _safe_json_loads(row['recent_books'], []),
+            'read_map': _safe_json_loads(row['read_map'], {}),
+        }
+    finally:
+        conn.close()
+
+
+@app.post('/api/user/state')
+def save_user_state(req: UserStateRequest, request: Request):
+    payload = require_auth(request)
+    username = payload['u']
+    now = int(time.time())
+    conn = _db_connect()
+    try:
+        conn.execute(
+            '''
+            INSERT INTO user_state (username, notes, highlights, recent_books, read_map, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(username) DO UPDATE SET
+                notes=excluded.notes,
+                highlights=excluded.highlights,
+                recent_books=excluded.recent_books,
+                read_map=excluded.read_map,
+                updated_at=excluded.updated_at
+            ''',
+            (
+                username,
+                json.dumps(req.notes),
+                json.dumps(req.highlights),
+                json.dumps(req.recent_books[:6]),
+                json.dumps(req.read_map),
+                now,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return {'ok': True, 'updated_at': now}
 
 
 # ---------------------------------------------------------------------------
@@ -326,6 +438,83 @@ async def api_commentary(
             'X-Accel-Buffering': 'no',
         },
     )
+
+
+def _resolve_lan_ip():
+    # Optional manual override for complex network setups (VPN, multiple NICs).
+    forced_host = os.environ.get('SHARE_PUBLIC_HOST', '').strip()
+    if forced_host:
+        return forced_host
+    # Prefer active LAN interfaces on macOS/Linux.
+    try:
+        output = subprocess.check_output(['ifconfig'], text=True)
+        blocks = output.split('\n\n')
+        preferred = []
+        fallback = []
+        for block in blocks:
+            lines = [ln for ln in block.splitlines() if ln.strip()]
+            if not lines:
+                continue
+            iface = lines[0].split(':', 1)[0].strip()
+            if iface.startswith(('lo', 'utun', 'awdl', 'llw', 'bridge', 'ap', 'gif', 'stf', 'anpi')):
+                continue
+            is_active = any('status: active' in ln for ln in lines)
+            ips = []
+            for ln in lines:
+                part = ln.strip()
+                if part.startswith('inet '):
+                    ip = part.split()[1]
+                    if ip.startswith('127.'):
+                        continue
+                    ips.append(ip)
+            if not ips:
+                continue
+            target = preferred if iface in ('en0', 'en7', 'wlan0', 'eth0', 'en1') else fallback
+            for ip in ips:
+                if is_active:
+                    target.append(ip)
+                else:
+                    fallback.append(ip)
+        if preferred:
+            return preferred[0]
+        if fallback:
+            return fallback[0]
+    except Exception:
+        pass
+    # Fallback to routing-based detection.
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(('8.8.8.8', 80))
+        ip = sock.getsockname()[0]
+        sock.close()
+        if ip and not ip.startswith('127.'):
+            return ip
+    except Exception:
+        try:
+            ip = socket.gethostbyname(socket.gethostname())
+            if ip and not ip.startswith('127.'):
+                return ip
+        except Exception:
+            pass
+    return None
+
+
+@app.get('/api/share-url')
+def api_share_url(request: Request):
+    host = request.headers.get('host', '')
+    scheme = request.headers.get('x-forwarded-proto') or request.url.scheme or 'http'
+    hostname = request.url.hostname or ''
+    port = request.url.port
+
+    if hostname in ('localhost', '127.0.0.1', '::1'):
+        lan_ip = _resolve_lan_ip()
+        if lan_ip:
+            if port:
+                return {'base_url': f'http://{lan_ip}:{port}'}
+            return {'base_url': f'http://{lan_ip}'}
+    if host:
+        return {'base_url': f'{scheme}://{host}'}
+    return {'base_url': str(request.base_url).rstrip('/')}
 
 
 # ---------------------------------------------------------------------------

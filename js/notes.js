@@ -38,6 +38,7 @@ function saveNote(){
     });
   }
   localStorage.setItem('bible_notes', JSON.stringify(notes));
+  if(typeof window.scheduleUserStateSave === 'function') window.scheduleUserStateSave();
   noteModal.hidden = true;
   currentNoteVerseId = null;
   // update button style
@@ -57,6 +58,7 @@ function addHighlight(verseId, verseData){
     text: sel, created: new Date().toISOString()
   });
   localStorage.setItem('bible_highlights', JSON.stringify(highlights));
+  if(typeof window.scheduleUserStateSave === 'function') window.scheduleUserStateSave();
   const verseEl = document.getElementById(verseId);
   const textSpan = verseEl ? verseEl.querySelector('.verse-text') : null;
   if(textSpan){
@@ -135,6 +137,7 @@ function renderNotes(){
       deleteBtn.addEventListener('click', ()=>{
         notes = notes.filter(x=> x.id !== n.id);
         localStorage.setItem('bible_notes', JSON.stringify(notes));
+        if(typeof window.scheduleUserStateSave === 'function') window.scheduleUserStateSave();
         renderNotes();
         renderRecentNotes();
       });
@@ -161,6 +164,7 @@ function renderNotes(){
       deleteBtn.addEventListener('click', ()=>{
         highlights = highlights.filter(x=> !(x.id === h.id && x.text === h.text));
         localStorage.setItem('bible_highlights', JSON.stringify(highlights));
+        if(typeof window.scheduleUserStateSave === 'function') window.scheduleUserStateSave();
         renderNotes();
       });
       actions.appendChild(deleteBtn);
@@ -177,4 +181,3 @@ if(backToReader) backToReader.addEventListener('click', showReaderPage);
 if(saveNoteBtn) saveNoteBtn.addEventListener('click', saveNote);
 if(cancelNoteBtn) cancelNoteBtn.addEventListener('click', ()=>{ noteModal.hidden = true; currentNoteVerseId = null; });
 if(noteModal) noteModal.addEventListener('click', (e)=>{ if(e.target === noteModal){ noteModal.hidden = true; currentNoteVerseId = null; }});
-

@@ -34,11 +34,24 @@
     </div>
     
     <div class="header-right">
+      <button id="shareBtn" class="nav-btn" title="Open mobile QR">📱 Mobile</button>
       <button id="charactersPageBtn" class="nav-btn">👥 Characters</button>
       <button id="notesPageBtn" class="nav-btn">📝 Notes</button>
       <button id="settingsBtn" class="nav-btn settings-btn" title="Voice & TTS Settings">⚙️ Settings</button>
     </div>
   </header>
+  <div id="sharePopover" class="share-popover" hidden>
+    <div class="share-card">
+      <div class="share-title">Open on mobile</div>
+      <canvas id="qrCanvas" width="220" height="220" aria-label="QR code for current page"></canvas>
+      <img id="qrImage" class="qr-image" hidden alt="QR code for current page">
+      <input id="shareUrlInput" class="setting-input share-url-input" readonly aria-label="Share URL">
+      <div class="share-actions">
+        <button id="copyShareBtn" class="chapter-action" type="button">Copy URL</button>
+        <a id="openShareBtn" class="chapter-action auth-login-link" href="#" target="_blank" rel="noopener">Open</a>
+      </div>
+    </div>
+  </div>
     <!-- Settings Panel (collapsible) -->
   <div id="settingsPanel" class="settings-panel" hidden>
     <div class="settings-content">
@@ -234,6 +247,7 @@
   <script src="js/notes.js"></script>
   <script src="js/characters.js"></script>
   <script src="js/hero.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
   <script src="js/bootstrap.js"></script>
 </body>
 </html>

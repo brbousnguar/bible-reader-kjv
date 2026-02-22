@@ -3,6 +3,7 @@ let booksList, chapterPicker, versesEl, searchInput, searchBtn;
 let aiVoiceSelect, rateRange;
 let settingsBtn, settingsPanel, rateValue;
 let authStatusText, authLoginLink, authLogoutBtn, chapterControlsEl;
+let shareBtn, sharePopover, qrCanvas, qrImage, shareUrlInput, copyShareBtn, openShareBtn;
 let chapterDrawer, drawerSubtitle;
 let recentBooksSection, recentBooksGrid;
 let recentNotesSection, recentNotesList;
@@ -25,6 +26,8 @@ const currentBibleVersion = { name: 'King James Version' };
 let notes = JSON.parse(localStorage.getItem('bible_notes') || '[]');
 let highlights = JSON.parse(localStorage.getItem('bible_highlights') || '[]');
 let currentNoteVerseId = null;
+let userStateSaveTimer = null;
+let suppressStateSync = false;
 
 let books = [];
 let activeBook = null;
@@ -107,6 +110,165 @@ function setupAuthControls(){
     });
   }
 }
+
+async function getShareBaseUrl(){
+  try{
+    const res = await fetch('/api/share-url', { credentials: 'same-origin' });
+    if(!res.ok) throw new Error('share-url failed');
+    const data = await res.json();
+    if(data && data.base_url) return data.base_url;
+  }catch(e){
+    console.warn('Could not resolve share base URL', e);
+  }
+  return window.location.origin;
+}
+
+async function buildCurrentShareUrl(){
+  const base = await getShareBaseUrl();
+  const path = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const normalizedBase = String(base || '').replace(/\/$/, '');
+  return `${normalizedBase}${path}`;
+}
+
+async function openSharePopover(){
+  if(!sharePopover || !shareUrlInput) return;
+  sharePopover.hidden = false;
+  const fullUrl = await buildCurrentShareUrl();
+  shareUrlInput.value = fullUrl;
+  if(openShareBtn) openShareBtn.href = fullUrl;
+  if(qrCanvas) qrCanvas.hidden = false;
+  if(qrImage) qrImage.hidden = true;
+
+  const drawFallbackQrImage = ()=>{
+    if(!qrImage) return;
+    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(fullUrl)}`;
+    qrImage.hidden = false;
+    if(qrCanvas) qrCanvas.hidden = true;
+  };
+
+  if(qrCanvas && window.QRCode && typeof window.QRCode.toCanvas === 'function'){
+    window.QRCode.toCanvas(qrCanvas, fullUrl, {
+      width: 220,
+      margin: 1,
+      color: {
+        dark: '#25170c',
+        light: '#ffffff',
+      },
+    }).catch(()=>{
+      drawFallbackQrImage();
+    });
+  } else {
+    drawFallbackQrImage();
+  }
+}
+
+function closeSharePopover(){
+  if(sharePopover) sharePopover.hidden = true;
+}
+
+function setupShareControls(){
+  if(!shareBtn || !sharePopover) return;
+
+  shareBtn.addEventListener('click', async ()=>{
+    if(sharePopover.hidden){
+      await openSharePopover();
+    } else {
+      closeSharePopover();
+    }
+  });
+
+  if(copyShareBtn){
+    copyShareBtn.addEventListener('click', async ()=>{
+      const url = shareUrlInput ? shareUrlInput.value : '';
+      if(!url) return;
+      try{
+        await navigator.clipboard.writeText(url);
+        copyShareBtn.textContent = 'Copied';
+        setTimeout(()=>{ copyShareBtn.textContent = 'Copy URL'; }, 1000);
+      }catch(e){
+        console.warn('Clipboard copy failed', e);
+      }
+    });
+  }
+
+  document.addEventListener('click', (e)=>{
+    if(sharePopover.hidden) return;
+    const target = e.target;
+    if(!target) return;
+    if(sharePopover.contains(target) || shareBtn.contains(target)) return;
+    closeSharePopover();
+  });
+}
+
+function normalizeUserStatePayload(data){
+  return {
+    notes: Array.isArray(data?.notes) ? data.notes : [],
+    highlights: Array.isArray(data?.highlights) ? data.highlights : [],
+    recent_books: Array.isArray(data?.recent_books) ? data.recent_books : [],
+    read_map: (data?.read_map && typeof data.read_map === 'object') ? data.read_map : {},
+  };
+}
+
+function buildUserStatePayload(){
+  return {
+    notes: Array.isArray(notes) ? notes : [],
+    highlights: Array.isArray(highlights) ? highlights : [],
+    recent_books: getRecentBooks(),
+    read_map: getReadMap(),
+  };
+}
+
+function applyUserState(payload){
+  const state = normalizeUserStatePayload(payload);
+  suppressStateSync = true;
+  notes = state.notes;
+  highlights = state.highlights;
+  localStorage.setItem('bible_notes', JSON.stringify(notes));
+  localStorage.setItem('bible_highlights', JSON.stringify(highlights));
+  localStorage.setItem(recentKey, JSON.stringify(state.recent_books.slice(0, 6)));
+  localStorage.setItem(readKey, JSON.stringify(state.read_map));
+  suppressStateSync = false;
+}
+
+async function loadUserState(){
+  if(!window.ttsAuthEnabled) return;
+  try{
+    const res = await fetch('/api/user/state', { credentials: 'same-origin' });
+    if(!res.ok) return;
+    const data = await res.json();
+    applyUserState(data);
+    if(typeof renderRecentNotes === 'function') renderRecentNotes();
+    if(typeof renderRecentBooks === 'function') renderRecentBooks();
+  }catch(e){
+    console.warn('Could not load user state', e);
+  }
+}
+
+async function saveUserStateNow(){
+  if(!window.ttsAuthEnabled || suppressStateSync) return;
+  try{
+    await fetch('/api/user/state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(buildUserStatePayload()),
+    });
+  }catch(e){
+    console.warn('Could not save user state', e);
+  }
+}
+
+function scheduleUserStateSave(){
+  if(!window.ttsAuthEnabled || suppressStateSync) return;
+  if(userStateSaveTimer) clearTimeout(userStateSaveTimer);
+  userStateSaveTimer = setTimeout(()=>{
+    saveUserStateNow();
+  }, 400);
+}
+
+window.scheduleUserStateSave = scheduleUserStateSave;
+window.saveUserStateNow = saveUserStateNow;
+window.loadUserState = loadUserState;
 
 function createBookButton(book){
   const btn = document.createElement('button');
@@ -311,6 +473,7 @@ function getRecentBooks(){
 
 function setRecentBooks(list){
   localStorage.setItem(recentKey, JSON.stringify(list.slice(0, 6)));
+  scheduleUserStateSave();
 }
 
 function getReadMap(){
@@ -324,6 +487,7 @@ function getReadMap(){
 
 function setReadMap(map){
   localStorage.setItem(readKey, JSON.stringify(map || {}));
+  scheduleUserStateSave();
 }
 
 function markChapterRead(bookName, chapter){
@@ -438,6 +602,13 @@ function initializeApp(){
   settingsBtn = document.getElementById('settingsBtn');
   settingsPanel = document.getElementById('settingsPanel');
   rateValue = document.getElementById('rateValue');
+  shareBtn = document.getElementById('shareBtn');
+  sharePopover = document.getElementById('sharePopover');
+  qrCanvas = document.getElementById('qrCanvas');
+  qrImage = document.getElementById('qrImage');
+  shareUrlInput = document.getElementById('shareUrlInput');
+  copyShareBtn = document.getElementById('copyShareBtn');
+  openShareBtn = document.getElementById('openShareBtn');
   authStatusText = document.getElementById('authStatusText');
   authLoginLink = document.getElementById('authLoginLink');
   authLogoutBtn = document.getElementById('authLogoutBtn');
@@ -482,6 +653,8 @@ function initializeApp(){
 
 async function initializeAuthenticatedSession(){
   await refreshAuthStatus();
+  await loadUserState();
+  setupShareControls();
   setupEventListeners();
   setupVoiceControls();
   setupAuthControls();
