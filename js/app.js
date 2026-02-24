@@ -420,6 +420,12 @@ function renderBooks(){
 }
 
 const bookChatKey = 'bible_book_chat_history';
+const bookChatSuggestedPrompts = [
+  'Give me places (cities and countries) mentioned in this book.',
+  'What are the most well-known verses in this book?',
+  'Who are the main characters mentioned in this book?',
+  'How coherent is this book with modern scholarship and archaeology? Mention agreements and contradictions.',
+];
 
 function getBookChatMap(){
   try{
@@ -454,31 +460,62 @@ function formatBookChatContent(content){
 
   let html = '';
   let inList = false;
+  let listType = '';
   for(const lineRaw of lines){
     const line = lineRaw.trim();
     if(!line){
       if(inList){
-        html += '</ul>';
+        html += listType === 'ol' ? '</ol>' : '</ul>';
         inList = false;
+        listType = '';
       }
       continue;
     }
-    const listMatch = line.match(/^[-*]\s+(.+)$/);
-    if(listMatch){
-      if(!inList){
+
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+    if(headingMatch){
+      if(inList){
+        html += listType === 'ol' ? '</ol>' : '</ul>';
+        inList = false;
+        listType = '';
+      }
+      const level = Math.min(4, headingMatch[1].length + 1);
+      html += `<h${level}>${headingMatch[2]}</h${level}>`;
+      continue;
+    }
+
+    const unorderedMatch = line.match(/^[-*]\s+(.+)$/);
+    if(unorderedMatch){
+      if(!inList || listType !== 'ul'){
+        if(inList) html += listType === 'ol' ? '</ol>' : '</ul>';
         html += '<ul>';
         inList = true;
+        listType = 'ul';
       }
-      html += `<li>${listMatch[1]}</li>`;
+      html += `<li>${unorderedMatch[1]}</li>`;
       continue;
     }
+
+    const orderedMatch = line.match(/^\d+\.\s+(.+)$/);
+    if(orderedMatch){
+      if(!inList || listType !== 'ol'){
+        if(inList) html += listType === 'ol' ? '</ol>' : '</ul>';
+        html += '<ol>';
+        inList = true;
+        listType = 'ol';
+      }
+      html += `<li>${orderedMatch[1]}</li>`;
+      continue;
+    }
+
     if(inList){
-      html += '</ul>';
+      html += listType === 'ol' ? '</ol>' : '</ul>';
       inList = false;
+      listType = '';
     }
     html += `<p>${line}</p>`;
   }
-  if(inList) html += '</ul>';
+  if(inList) html += listType === 'ol' ? '</ol>' : '</ul>';
   return html || `<p>${safe}</p>`;
 }
 
@@ -580,6 +617,10 @@ function showBookReview(book){
   } else {
     imageHTML = book.name.charAt(0).toUpperCase();
   }
+
+  const promptButtonsHTML = bookChatSuggestedPrompts.map((prompt, idx) =>
+    `<button type="button" class="book-chat-prompt-btn" data-prompt-index="${idx}">${escapeHtml(prompt)}</button>`
+  ).join('');
   
   // Build review HTML with circular image
   let reviewHTML = `
@@ -605,6 +646,7 @@ function showBookReview(book){
           <h3>Book Discussion</h3>
           <button id="clearBookChatBtn" class="btn-secondary">Clear Chat</button>
         </div>
+        <div class="book-chat-prompts">${promptButtonsHTML}</div>
         <div id="bookChatMessages" class="book-chat-messages"></div>
         <div class="book-chat-composer">
           <input id="bookChatInput" type="text" placeholder="Ask about themes, places, chapters..." />
@@ -629,6 +671,7 @@ function showBookReview(book){
   const chatInput = document.getElementById('bookChatInput');
   const chatSendBtn = document.getElementById('bookChatSendBtn');
   const clearChatBtn = document.getElementById('clearBookChatBtn');
+  const promptBtns = Array.from(document.querySelectorAll('.book-chat-prompt-btn'));
 
   if(toggleChatBtn && chatSection){
     toggleChatBtn.addEventListener('click', ()=>{
@@ -642,6 +685,22 @@ function showBookReview(book){
   }
   if(chatSendBtn){
     chatSendBtn.addEventListener('click', ()=> sendBookChatMessage(book, meta));
+  }
+  if(promptBtns.length && chatInput){
+    promptBtns.forEach((btn)=>{
+      btn.addEventListener('click', ()=>{
+        const idx = Number(btn.getAttribute('data-prompt-index'));
+        const prompt = bookChatSuggestedPrompts[idx];
+        if(!prompt) return;
+        if(chatSection && chatSection.hidden){
+          chatSection.hidden = false;
+          if(toggleChatBtn) toggleChatBtn.textContent = 'Hide Discussion';
+          renderBookChatMessages(book.name);
+        }
+        chatInput.value = prompt;
+        sendBookChatMessage(book, meta);
+      });
+    });
   }
   if(chatInput){
     chatInput.addEventListener('keydown', (e)=>{

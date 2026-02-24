@@ -1862,6 +1862,9 @@ body::before{
 .book-chat-section{margin-top:18px;padding:16px;border:1px solid rgba(139,94,52,0.2);background:rgba(255,255,255,0.45);border-radius:12px}
 .book-chat-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
 .book-chat-head h3{margin:0;font-size:1.05rem}
+.book-chat-prompts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px 0}
+.book-chat-prompt-btn{border:1px solid rgba(139,94,52,0.3);background:rgba(139,94,52,0.08);color:var(--text);border-radius:999px;padding:6px 10px;font-size:0.82rem;line-height:1.25;cursor:pointer;transition:all 0.15s ease;text-align:left}
+.book-chat-prompt-btn:hover{background:rgba(139,94,52,0.16);border-color:rgba(139,94,52,0.5)}
 .book-chat-messages{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow:auto;padding-right:4px}
 .book-chat-empty{margin:0;padding:8px 0;color:var(--muted)}
 .book-chat-message{display:flex;flex-direction:column;gap:4px}
@@ -1869,7 +1872,14 @@ body::before{
 .book-chat-bubble{padding:10px 12px;border-radius:12px;line-height:1.5;border:1px solid rgba(0,0,0,0.06)}
 .book-chat-bubble p{margin:0 0 8px 0}
 .book-chat-bubble p:last-child{margin-bottom:0}
+.book-chat-bubble h2,
+.book-chat-bubble h3,
+.book-chat-bubble h4{margin:0 0 8px 0;line-height:1.25;color:#2f241a}
+.book-chat-bubble h2{font-size:1.12rem}
+.book-chat-bubble h3{font-size:1.02rem}
+.book-chat-bubble h4{font-size:0.96rem}
 .book-chat-bubble ul{margin:0 0 8px 18px;padding:0}
+.book-chat-bubble ol{margin:0 0 8px 18px;padding:0}
 .book-chat-bubble li{margin:0 0 6px 0}
 .book-chat-bubble li:last-child{margin-bottom:0}
 .book-chat-message.user .book-chat-bubble{background:rgba(139,94,52,0.12);border-color:rgba(139,94,52,0.3)}
@@ -2808,6 +2818,11 @@ body::before{
 
   .book-chat-section{
     padding:12px;
+  }
+
+  .book-chat-prompt-btn{
+    width:100%;
+    border-radius:12px;
   }
 
   .book-chat-composer{
