@@ -2,6 +2,7 @@ const booksUrl = 'books.json';
 let booksList, chapterPicker, versesEl, searchInput, searchBtn;
 let aiVoiceSelect, rateRange;
 let settingsBtn, settingsPanel, rateValue;
+let settingsCloseBtn;
 let authStatusText, authLoginLink, authLogoutBtn, chapterControlsEl;
 let shareBtn, sharePopover, qrCanvas, qrImage, shareUrlInput, copyShareBtn, openShareBtn;
 let chapterDrawer, drawerSubtitle;
@@ -322,11 +323,10 @@ function createBookButton(book){
   }
 
   btn.addEventListener('click', ()=>{
-    if(isMobileView()){
-      selectBook(book, { autoScroll: true });
-      return;
-    }
     showBookReview(book);
+    if(isMobileView() && versesEl){
+      setTimeout(()=> versesEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
   });
   return btn;
 }
@@ -886,6 +886,7 @@ function initializeApp(){
   rateRange = document.getElementById('rateRange');
   settingsBtn = document.getElementById('settingsBtn');
   settingsPanel = document.getElementById('settingsPanel');
+  settingsCloseBtn = document.getElementById('settingsCloseBtn');
   rateValue = document.getElementById('rateValue');
   shareBtn = document.getElementById('shareBtn');
   sharePopover = document.getElementById('sharePopover');
@@ -981,14 +982,37 @@ function setupEventListeners(){
   
   // Settings button
   if(settingsBtn && settingsPanel){
+    const openSettingsPanel = ()=>{
+      settingsPanel.removeAttribute('hidden');
+      settingsBtn.textContent = '⚙️ Close';
+    };
+    const closeSettingsPanel = ()=>{
+      settingsPanel.setAttribute('hidden', '');
+      settingsBtn.textContent = '⚙️ Settings';
+    };
+
     settingsBtn.addEventListener('click', ()=>{
       const isHidden = settingsPanel.hasAttribute('hidden');
       if(isHidden){
-        settingsPanel.removeAttribute('hidden');
-        settingsBtn.textContent = '⚙️ Close';
+        openSettingsPanel();
       } else {
-        settingsPanel.setAttribute('hidden', '');
-        settingsBtn.textContent = '⚙️ Settings';
+        closeSettingsPanel();
+      }
+    });
+
+    if(settingsCloseBtn){
+      settingsCloseBtn.addEventListener('click', closeSettingsPanel);
+    }
+
+    settingsPanel.addEventListener('click', (e)=>{
+      if(e.target === settingsPanel){
+        closeSettingsPanel();
+      }
+    });
+
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && !settingsPanel.hasAttribute('hidden')){
+        closeSettingsPanel();
       }
     });
   }
