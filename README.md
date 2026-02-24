@@ -61,7 +61,6 @@ A Bible reading web app with a vanilla frontend and a FastAPI backend that serve
 ```text
 bible/
 ├── index.html
-├── welcome.html      # legacy entry; redirects to index.html (KJV-only flow)
 ├── login.html
 ├── styles.css
 ├── js/
