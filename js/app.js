@@ -419,6 +419,151 @@ function renderBooks(){
   }
 }
 
+const bookChatKey = 'bible_book_chat_history';
+
+function getBookChatMap(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(bookChatKey) || '{}');
+    return raw && typeof raw === 'object' ? raw : {};
+  }catch(e){
+    return {};
+  }
+}
+
+function getBookChatHistory(bookName){
+  const map = getBookChatMap();
+  const list = map[bookName];
+  return Array.isArray(list) ? list : [];
+}
+
+function setBookChatHistory(bookName, messages){
+  if(!bookName) return;
+  const map = getBookChatMap();
+  map[bookName] = Array.isArray(messages) ? messages.slice(-24) : [];
+  localStorage.setItem(bookChatKey, JSON.stringify(map));
+}
+
+function formatBookChatContent(content){
+  const raw = String(content || '').replace(/\r/g, '').trim();
+  if(!raw) return '';
+
+  // Some model outputs inline bullets (` - **Topic**`) in one long line.
+  const normalized = raw.replace(/\s-\s(?=\*\*|[A-Za-z0-9])/g, '\n- ');
+  const safe = escapeHtml(normalized).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  const lines = safe.split('\n');
+
+  let html = '';
+  let inList = false;
+  for(const lineRaw of lines){
+    const line = lineRaw.trim();
+    if(!line){
+      if(inList){
+        html += '</ul>';
+        inList = false;
+      }
+      continue;
+    }
+    const listMatch = line.match(/^[-*]\s+(.+)$/);
+    if(listMatch){
+      if(!inList){
+        html += '<ul>';
+        inList = true;
+      }
+      html += `<li>${listMatch[1]}</li>`;
+      continue;
+    }
+    if(inList){
+      html += '</ul>';
+      inList = false;
+    }
+    html += `<p>${line}</p>`;
+  }
+  if(inList) html += '</ul>';
+  return html || `<p>${safe}</p>`;
+}
+
+function renderBookChatMessages(bookName){
+  const listEl = document.getElementById('bookChatMessages');
+  if(!listEl) return;
+  const history = getBookChatHistory(bookName);
+  if(!history.length){
+    listEl.innerHTML = '<p class="book-chat-empty">Ask about themes, places, structure, or key messages in this book.</p>';
+    return;
+  }
+  listEl.innerHTML = history.map(msg => {
+    const role = msg.role === 'assistant' ? 'assistant' : 'user';
+    return `
+      <div class="book-chat-message ${role}">
+        <div class="book-chat-role">${role === 'user' ? 'You' : 'Bible Guide'}</div>
+        <div class="book-chat-bubble">${formatBookChatContent(msg.content || '')}</div>
+      </div>
+    `;
+  }).join('');
+  listEl.scrollTop = listEl.scrollHeight;
+}
+
+async function sendBookChatMessage(book, meta){
+  const input = document.getElementById('bookChatInput');
+  const sendBtn = document.getElementById('bookChatSendBtn');
+  if(!input || !sendBtn || !book) return;
+  if(!requireTtsLogin()) return;
+
+  const message = String(input.value || '').trim();
+  if(!message) return;
+  input.value = '';
+
+  const history = getBookChatHistory(book.name);
+  history.push({ role: 'user', content: message });
+  setBookChatHistory(book.name, history);
+  renderBookChatMessages(book.name);
+
+  sendBtn.disabled = true;
+  input.disabled = true;
+
+  const statusEl = document.getElementById('bookChatStatus');
+  if(statusEl) statusEl.textContent = 'Thinking...';
+
+  try{
+    const res = await fetch('/api/book-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        book: book.name,
+        chapter_count: Number(book.chapters) || 0,
+        quick_review: {
+          author: meta?.author || '',
+          when: meta?.when || '',
+          celebrity: meta?.celebrity || '',
+          impact: meta?.impact || '',
+        },
+        history: getBookChatHistory(book.name).slice(-12),
+        user_message: message,
+      }),
+    });
+
+    const data = await res.json().catch(()=> ({}));
+    if(!res.ok){
+      throw new Error(data.detail || 'Could not get chat response');
+    }
+    const next = getBookChatHistory(book.name);
+    next.push({ role: 'assistant', content: data.reply || 'I could not generate a response.' });
+    setBookChatHistory(book.name, next);
+    renderBookChatMessages(book.name);
+    if(statusEl) statusEl.textContent = '';
+  }catch(e){
+    const next = getBookChatHistory(book.name);
+    next.push({ role: 'assistant', content: `Sorry, I could not answer right now. ${e.message || ''}`.trim() });
+    setBookChatHistory(book.name, next);
+    renderBookChatMessages(book.name);
+    if(statusEl) statusEl.textContent = '';
+  }finally{
+    sendBtn.disabled = false;
+    input.disabled = false;
+    input.focus();
+  }
+}
+
 // Show a quick review for the book in the main content area
 function showBookReview(book){
   activeBook = book;
@@ -446,12 +591,27 @@ function showBookReview(book){
         </div>
       </div>
       <div class="review-section">
-        <p><strong>Author:</strong> ${meta && meta.author ? meta.author : 'Traditionally attributed authorship varies'}</p>
-        <p><strong>When:</strong> ${meta && meta.when ? meta.when : '—'}</p>
-        <p><strong>Celebrity:</strong> ${meta && meta.celebrity ? meta.celebrity : '—'}</p>
-        <p><strong>Impact:</strong> ${meta && meta.impact ? meta.impact : '—'}</p>
+        <p><strong>Author:</strong> ${meta && meta.author ? escapeHtml(meta.author) : 'Traditionally attributed authorship varies'}</p>
+        <p><strong>When:</strong> ${meta && meta.when ? escapeHtml(meta.when) : '—'}</p>
+        <p><strong>Celebrity:</strong> ${meta && meta.celebrity ? escapeHtml(meta.celebrity) : '—'}</p>
+        <p><strong>Impact:</strong> ${meta && meta.impact ? escapeHtml(meta.impact) : '—'}</p>
       </div>
-      <button id="showChaptersFromReview" class="show-chapters-btn">Show Chapters</button>
+      <div class="book-review-actions">
+        <button id="showChaptersFromReview" class="show-chapters-btn">Show Chapters</button>
+        <button id="toggleBookChatBtn" class="show-chapters-btn book-chat-toggle">Discuss This Book</button>
+      </div>
+      <section id="bookChatSection" class="book-chat-section" hidden>
+        <div class="book-chat-head">
+          <h3>Book Discussion</h3>
+          <button id="clearBookChatBtn" class="btn-secondary">Clear Chat</button>
+        </div>
+        <div id="bookChatMessages" class="book-chat-messages"></div>
+        <div class="book-chat-composer">
+          <input id="bookChatInput" type="text" placeholder="Ask about themes, places, chapters..." />
+          <button id="bookChatSendBtn" class="btn-primary">Send</button>
+        </div>
+        <div id="bookChatStatus" class="book-chat-status"></div>
+      </section>
     </div>
   `;
   
@@ -462,6 +622,45 @@ function showBookReview(book){
   const showChaptersBtn = document.getElementById('showChaptersFromReview');
   if(showChaptersBtn){
     showChaptersBtn.addEventListener('click', ()=> selectBook(book));
+  }
+
+  const toggleChatBtn = document.getElementById('toggleBookChatBtn');
+  const chatSection = document.getElementById('bookChatSection');
+  const chatInput = document.getElementById('bookChatInput');
+  const chatSendBtn = document.getElementById('bookChatSendBtn');
+  const clearChatBtn = document.getElementById('clearBookChatBtn');
+
+  if(toggleChatBtn && chatSection){
+    toggleChatBtn.addEventListener('click', ()=>{
+      chatSection.hidden = !chatSection.hidden;
+      toggleChatBtn.textContent = chatSection.hidden ? 'Discuss This Book' : 'Hide Discussion';
+      if(!chatSection.hidden){
+        renderBookChatMessages(book.name);
+        if(chatInput) chatInput.focus();
+      }
+    });
+  }
+  if(chatSendBtn){
+    chatSendBtn.addEventListener('click', ()=> sendBookChatMessage(book, meta));
+  }
+  if(chatInput){
+    chatInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        sendBookChatMessage(book, meta);
+      }
+    });
+  }
+  if(clearChatBtn){
+    clearChatBtn.addEventListener('click', ()=>{
+      setBookChatHistory(book.name, []);
+      renderBookChatMessages(book.name);
+      const statusEl = document.getElementById('bookChatStatus');
+      if(statusEl) statusEl.textContent = 'Chat cleared.';
+      setTimeout(()=>{
+        if(statusEl && statusEl.textContent === 'Chat cleared.') statusEl.textContent = '';
+      }, 1200);
+    });
   }
 }
 

@@ -356,6 +356,14 @@ class TTSRequest(BaseModel):
     speed: float = 1.0
 
 
+class BookChatRequest(BaseModel):
+    book: str
+    user_message: str
+    chapter_count: int = 0
+    quick_review: dict = Field(default_factory=dict)
+    history: list = Field(default_factory=list)
+
+
 @app.post('/api/tts')
 async def api_tts(req: TTSRequest, request: Request):
     require_auth(request)
@@ -438,6 +446,85 @@ async def api_commentary(
             'X-Accel-Buffering': 'no',
         },
     )
+
+
+@app.post('/api/book-chat')
+async def api_book_chat(req: BookChatRequest, request: Request):
+    require_auth(request)
+    api_key = os.environ.get('OPENAI_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail='OPENAI_API_KEY not configured')
+
+    raw_book = (req.book or '').strip()
+    user_message = (req.user_message or '').strip()
+    if not raw_book:
+        raise HTTPException(status_code=400, detail='Book is required')
+    if not user_message:
+        raise HTTPException(status_code=400, detail='Message is required')
+
+    # Normalize user-entered names to the canonical KJV entry when possible.
+    slug = raw_book.lower().replace(' ', '-')
+    book_entry = get_book_by_slug(raw_book) or get_book_by_slug(slug)
+    book_data = read_book_file(book_entry) if book_entry else None
+    book_name = (book_data or {}).get('book', raw_book)
+    chapter_count = len((book_data or {}).get('chapters', [])) or int(req.chapter_count or 0)
+
+    quick_review = req.quick_review if isinstance(req.quick_review, dict) else {}
+    review_bits = []
+    for key in ('author', 'when', 'celebrity', 'impact'):
+        value = quick_review.get(key)
+        if isinstance(value, str) and value.strip():
+            review_bits.append(f'{key}: {value.strip()}')
+    quick_review_text = '; '.join(review_bits) if review_bits else 'No extra quick-review metadata provided.'
+
+    clean_history = []
+    for item in req.history[-12:]:
+        if not isinstance(item, dict):
+            continue
+        role = str(item.get('role', '')).strip().lower()
+        content = str(item.get('content', '')).strip()
+        if role not in ('user', 'assistant') or not content:
+            continue
+        clean_history.append({'role': role, 'content': content[:800]})
+
+    client = AsyncOpenAI(api_key=api_key)
+    context_prompt = (
+        f'Book context:\n'
+        f'- Name: {book_name}\n'
+        f'- Chapters: {chapter_count if chapter_count > 0 else "unknown"}\n'
+        f'- Quick review: {quick_review_text}\n'
+        f'Answer only about this selected biblical book unless the user asks to compare books.'
+    )
+
+    try:
+        completion = await client.chat.completions.create(
+            model='gpt-4o-mini',
+            messages=[
+                {
+                    'role': 'system',
+                    'content': (
+                        'You are a Bible study assistant. Give clear, accurate, respectful answers in short paragraphs '
+                        'or bullet points. Use the provided book context and mention uncertainty if needed.'
+                    ),
+                },
+                {'role': 'system', 'content': context_prompt},
+                *clean_history,
+                {'role': 'user', 'content': user_message[:1200]},
+            ],
+            max_tokens=350,
+            temperature=0.4,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f'Chat generation failed: {str(e)}')
+
+    reply = ((completion.choices or [{}])[0].message.content or '').strip()
+    if not reply:
+        raise HTTPException(status_code=500, detail='Empty chat response')
+    return {
+        'book': book_name,
+        'chapter_count': chapter_count,
+        'reply': reply,
+    }
 
 
 def _resolve_lan_ip():

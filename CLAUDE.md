@@ -56,6 +56,7 @@ Frontend is split across plain scripts loaded in order:
 | `GET /api/bible/search?q=` | Full-text verse search (max 200 results) |
 | `POST /api/tts` | OpenAI TTS — body: `{text, voice, speed}`, returns MP3 |
 | `GET /api/commentary?book=&chapter=&verse=&text=` | SSE-streamed GPT-4o-mini commentary |
+| `POST /api/book-chat` | Back-and-forth chat for selected book context — body: `{book, user_message, chapter_count, quick_review, history}` |
 | `GET /` (catch-all) | Static file serving |
 
 All frontend API calls use **relative paths** (e.g. `/api/bible/genesis/1`) — no hardcoded ports.
