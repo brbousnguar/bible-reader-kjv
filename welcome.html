@@ -3,195 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bible Reader — Choose Your Version</title>
-  <link rel="icon" type="image/png" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
+  <title>Bible Reader</title>
+  <meta http-equiv="refresh" content="0; url=index.html" />
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    body{
+      margin:0;
+      font-family: Georgia, 'Times New Roman', serif;
+      background:#fbf6ed;
+      color:#2b1b0e;
+      display:grid;
+      place-items:center;
+      min-height:100vh;
+      padding:24px;
+      text-align:center;
     }
-    
-    body {
-      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-      background: linear-gradient(135deg, #fbf6ed 0%, #f7efe0 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    
-    .welcome-container {
-      max-width: 800px;
-      width: 100%;
-      text-align: center;
-      animation: fadeIn 0.6s ease;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .logo-section {
-      margin-bottom: 40px;
-    }
-    
-    .logo-icon {
-      width: 220px;
-      height: 220px;
-      margin: 0 auto 8px;
-    }
-
-    .logo-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      mix-blend-mode: multiply;
-    }
-    
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #8b5e34 0%, #a67c52 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .subtitle {
-      font-size: 1.1rem;
-      color: #7a5a42;
-      margin-bottom: 50px;
-    }
-    
-    .version-selection {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-    
-    .version-card {
-      background: #fffaf0;
-      border: 2px solid rgba(0,0,0,0.06);
-      border-radius: 16px;
-      padding: 32px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .version-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: linear-gradient(90deg, #8b5e34, #a67c52);
-      transform: scaleX(0);
-      transition: transform 0.3s ease;
-    }
-    
-    .version-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(30,20,10,0.1);
-      border-color: #8b5e34;
-    }
-    
-    .version-card:hover::before {
-      transform: scaleX(1);
-    }
-    
-    .version-flag {
-      font-size: 3rem;
-      margin-bottom: 16px;
-    }
-    
-    .version-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #2b1b0e;
-      margin-bottom: 8px;
-    }
-    
-    .version-code {
-      font-size: 0.9rem;
-      color: #7a5a42;
-      margin-bottom: 16px;
-    }
-    
-    .version-description {
-      font-size: 0.95rem;
-      color: #7a5a42;
-      line-height: 1.6;
-    }
-    
-    .footer-note {
-      margin-top: 40px;
-      font-size: 0.9rem;
-      color: #7a5a42;
-      opacity: 0.8;
-    }
+    a{ color:#8b5e34; }
   </style>
 </head>
 <body>
-  <div class="welcome-container">
-    <div class="logo-section">
-      <div class="logo-icon">
-        <img src="logo.png" alt="Bible Reader">
-      </div>
-      <h1>Bible Reader</h1>
-      <p class="subtitle">Choose your preferred Bible version to begin</p>
-    </div>
-    
-    <div class="version-selection">
-      <div class="version-card" data-version="kjv">
-        <div class="version-flag">🇬🇧</div>
-        <div class="version-name">King James Version</div>
-        <div class="version-code">KJV (English)</div>
-        <div class="version-description">
-          The classic English translation, first published in 1611. 
-          Widely regarded for its literary beauty and historical significance.
-        </div>
-      </div>
-
-      <div class="version-card" data-version="kjv_local">
-        <div class="version-flag">📁</div>
-        <div class="version-name">Local King James (JSON)</div>
-        <div class="version-code">KJV — Local</div>
-        <div class="version-description">
-          Use the bundled JSON copy of the King James Version served from your local backend. Works offline when deployed with the local data service.
-        </div>
-      </div>
-    </div>
-    
-    <p class="footer-note">Your selection will be saved for future visits</p>
-  </div>
-  
+  <main>
+    <h1>Loading Bible Reader...</h1>
+    <p>This app uses the King James Version (KJV).</p>
+    <p>If you are not redirected, <a href="index.html">open the reader</a>.</p>
+  </main>
   <script>
-    document.querySelectorAll('.version-card').forEach(card => {
-      card.addEventListener('click', function() {
-        const version = this.getAttribute('data-version');
-        // Save selection
-        localStorage.setItem('bible_version', version);
-        localStorage.setItem('bible_version_selected', 'true');
-        // Redirect to main app
-        window.location.href = 'index.html';
-      });
-    });
+    window.location.replace('index.html');
   </script>
 </body>
 </html>

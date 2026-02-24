@@ -924,13 +924,12 @@ function initializeApp(){
     subtitle.textContent = currentBibleVersion.name;
   }
 
-  // Make logo clickable to go to welcome page
+  // Make logo clickable to return to main reader
   const logoContainer = document.querySelector('.logo-container');
   if(logoContainer){
     logoContainer.style.cursor = 'pointer';
     logoContainer.addEventListener('click', ()=>{
-      localStorage.removeItem('bible_version_selected');
-      window.location.href = 'welcome.html';
+      window.location.href = 'index.html';
     });
   }
 
