@@ -97,7 +97,8 @@ All frontend API calls use **relative paths** (e.g. `/api/bible/genesis/1`) — 
 
 Put it in `.env` at the project root — loaded automatically by `python-dotenv` and Docker Compose.
 
-## Obsolete Files
+## Removed Legacy Files
 
-- `server/app.py` — old Flask backend, no longer used
-- `server/index.js` — old Node.js TTS proxy, no longer used
+- `server/app.py` — removed (old Flask backend)
+- `server/index.js` — removed (old Node.js proxy)
+- `server/package.json` — removed (legacy Node deps)

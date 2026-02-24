@@ -5,7 +5,7 @@
 - Static data lives in `books.json`, `book_meta.json`, `characters.json`, and `bibles/kjv_json/`.
 - Media assets are in `videos/` and `logo.png`.
 - Backend is a FastAPI app in `server/main.py` (serves static files plus API endpoints).
-- Legacy/optional servers: `server/app.py` (old Flask) and `server/index.js` (optional Node TTS proxy).
+- Legacy servers have been removed; use `server/main.py` as the only backend.
 
 ## Architecture Overview
 - Single FastAPI server serves the frontend and API under the same origin (port 3000).
@@ -19,10 +19,6 @@
   - `pip install -r server/requirements.txt`
   - `uvicorn server.main:app --reload --port 3000`
 - Docker (optional): `docker compose up --build`
-- Node TTS proxy (optional, not used by default):
-  - `cd server && npm install`
-  - `export GOOGLE_API_KEY=...` or `export AZURE_KEY=...` and `export AZURE_REGION=...`
-  - `npm run start` (starts `server/index.js` on its own port; client must be pointed at it if used)
 
 ## Coding Style & Naming Conventions
 - JavaScript and CSS are hand-written; keep functions small and readable in the `js/` modules.

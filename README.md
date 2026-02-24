@@ -1,120 +1,193 @@
-# Bible Reader — KJV
+# Bible Reader (KJV)
 
-A feature-rich King James Version Bible reader with AI-powered voice reading and verse commentary.
+A Bible reading web app with a vanilla frontend and a FastAPI backend that serves scripture data, AI features, and authenticated user state.
 
-## Features
+## Stack
 
-- Browse all 66 books and their chapters
-- Full-text verse search
-- **AI voice reading** — per-verse and full-chapter playback via OpenAI TTS
-- **AI commentary** — GPT-4o-mini explains any verse on demand (streamed)
-- Notes & highlights saved to `localStorage`
-- 66+ biblical characters with images and cross-references
-- Hero video background, sepia/paper theme, responsive layout
+- Frontend: HTML5, CSS3, Vanilla JavaScript (modular scripts in `js/`)
+- Backend: Python 3 + FastAPI
+- ASGI server: Uvicorn
+- AI SDK: OpenAI Python SDK (`openai`)
+- Data storage:
+  - Static JSON files for Bible text and metadata
+  - SQLite for authenticated user state (`notes`, `highlights`, `recent_books`, `read_map`)
+- Realtime transport: Server-Sent Events (SSE) for streaming verse commentary
+- Deployment option: Docker Compose
 
-## Quick Start
+## Models Used
 
-### 1. Add your OpenAI key
+- `tts-1` for text-to-speech (`POST /api/tts`)
+- `gpt-4o-mini` for:
+  - verse commentary streaming (`GET /api/commentary`)
+  - book discussion chat (`POST /api/book-chat`)
 
-Create a `.env` file in the project root:
+## Libraries and Dependencies
 
-```
-OPENAI_API_KEY=sk-proj-...
-```
+### Backend (`server/requirements.txt`)
 
-### 2. Install dependencies
+- `fastapi`
+- `uvicorn[standard]`
+- `openai`
+- `python-dotenv`
+- `aiofiles`
+- Python stdlib used heavily: `sqlite3`, `json`, `hmac`, `hashlib`, `pathlib`, `time`
 
-From the project root, activate (or create) a virtual environment:
+### Frontend
 
-```bash
-python3 -m venv server/.venv
-source server/.venv/bin/activate      # macOS/Linux
-# server\.venv\Scripts\Activate.ps1  # Windows PowerShell
+- No framework (no React/Vue/etc.)
+- QR rendering via CDN:
+  - `qrcode@1.5.4` (`https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js`)
 
-pip install -r server/requirements.txt
-```
+## Techniques and Implementation Notes
 
-### 3. Run the server
-
-```bash
-uvicorn server.main:app --reload --port 3000
-```
-
-Open **http://localhost:3000** in your browser.
-
----
-
-## Docker
-
-```bash
-# .env is picked up automatically by Docker Compose
-docker compose up --build
-```
-
-Open **http://localhost:3000**.
-
----
+- Single-origin architecture:
+  - FastAPI serves both static frontend files and API routes from port `3000`
+- Auth/session:
+  - Signed auth cookie (`bible_auth`) using HMAC
+  - Login/logout/status endpoints (`/api/auth/*`)
+- Persistent per-user server state:
+  - `user_state` table in SQLite
+- Local-first client persistence:
+  - localStorage for notes/highlights and UI state
+- Streaming AI UX:
+  - SSE token streaming for commentary responses
+- Contextual AI chat:
+  - Book-aware chat endpoint receives selected book metadata + recent chat history
+- Responsive UI:
+  - Mobile-first adaptations in CSS media queries
 
 ## Project Structure
 
-```
+```text
 bible/
-├── index.html          # App shell
+├── index.html
+├── welcome.html
+├── login.html
+├── styles.css
 ├── js/
-│   ├── app.js          # App state, bootstrap helpers, book loading
-│   ├── reader.js       # Reader/search/TTS/commentary/chapter playback
-│   ├── notes.js        # Notes/highlights pages and persistence
-│   ├── characters.js   # Characters page logic
-│   ├── hero.js         # Hero video interactions
-│   └── bootstrap.js    # App initialization after script load
-├── styles.css          # Sepia/paper theme
-├── books.json          # 66-book metadata (testament / category)
-├── book_meta.json      # Curated reviews for major books
-├── characters.json     # 66+ biblical characters
-├── bibles/
-│   └── kjv_json/       # Local KJV text (index.json + per-book files)
+│   ├── app.js
+│   ├── reader.js
+│   ├── notes.js
+│   ├── characters.js
+│   ├── hero.js
+│   └── bootstrap.js
+├── books.json
+├── book_meta.json
+├── characters.json
+├── bibles/kjv_json/
 ├── videos/
-│   └── bible_scenes_1080p.mp4
+├── logo.png
 ├── server/
-│   ├── main.py         # FastAPI backend (Bible API + TTS + commentary)
+│   ├── main.py
 │   ├── requirements.txt
-│   └── Dockerfile
+│   ├── Dockerfile
+│   └── README_PY.md
 ├── docker-compose.yml
-└── .env                # Your secrets (git-ignored)
+└── .env
 ```
 
 ## API Endpoints
 
-All served by `server/main.py` on port 3000:
+### Authentication
 
-| Endpoint | Description |
-|---|---|
-| `GET /api/bible/books` | Book list from local KJV index |
-| `GET /api/bible/{slug}/{chapter}` | Chapter verses (e.g. `/api/bible/genesis/1`) |
-| `GET /api/bible/search?q=faith` | Full-text verse search (up to 200 results) |
-| `POST /api/tts` | OpenAI TTS — returns MP3 audio |
-| `GET /api/commentary?book=&chapter=&verse=&text=` | SSE-streamed GPT-4o-mini commentary |
-| `GET /` | Serves `index.html` and all static assets |
+- `GET /api/auth/status`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
 
-### TTS request body
+### User state
 
-```json
-{ "text": "In the beginning God created...", "voice": "onyx", "speed": 1.0 }
-```
+- `GET /api/user/state`
+- `POST /api/user/state`
 
-Available voices: `alloy`, `echo`, `fable`, `onyx` (default), `nova`, `shimmer`.
+### Bible data
+
+- `GET /api/bible/books`
+- `GET /api/bible/{slug}/{chapter}`
+- `GET /api/bible/search?q=<query>`
+
+### AI
+
+- `POST /api/tts`
+- `GET /api/commentary?book=&chapter=&verse=&text=` (SSE stream)
+- `POST /api/book-chat`
+
+### Networking utilities
+
+- `GET /api/share-url`
 
 ## Environment Variables
 
-| Variable | Purpose |
-|---|---|
-| `OPENAI_API_KEY` | Required — OpenAI TTS + GPT-4o-mini commentary |
+Create a root `.env` file:
 
-Put it in `.env` at the project root (auto-loaded by the backend and by Docker Compose).
+```env
+OPENAI_API_KEY=sk-...
 
-## Notes
+# Required auth config
+AUTH_SECRET=replace-with-long-random-secret
+APP_LOGIN_USER=your-username
+APP_LOGIN_PASSWORD_HASH=pbkdf2_sha256$<iterations>$<salt>$<hash_b64url>
 
-- Bible text is the public-domain King James Version, stored locally in `bibles/kjv_json/`.
-- Search is done client-side, fetching chapters from the local backend.
-- AI features require an active internet connection and a valid OpenAI key.
-- `server/app.py` (old Flask backend) is no longer used and can be deleted.
+# Optional
+APP_DATA_DB_PATH=server/bible_app.db
+SHARE_PUBLIC_HOST=
+```
+
+### Generate `APP_LOGIN_PASSWORD_HASH`
+
+Run this once (replace password/salt values):
+
+```bash
+python3 - <<'PY'
+import base64, hashlib
+password = 'change-me'
+salt = 'change-this-salt'
+iterations = 600000
+dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), iterations)
+b64 = base64.urlsafe_b64encode(dk).decode().rstrip('=')
+print(f'pbkdf2_sha256${iterations}${salt}${b64}')
+PY
+```
+
+## Local Development
+
+Quick start (macOS):
+
+```bash
+./start.command
+```
+
+This script creates/activates `server/.venv`, installs dependencies, checks `.env`, and starts the app on port `3000`.
+
+Manual start:
+
+```bash
+python3 -m venv server/.venv
+source server/.venv/bin/activate
+pip install -r server/requirements.txt
+uvicorn server.main:app --reload --port 3000
+```
+
+Open: `http://localhost:3000`
+
+## Docker
+
+```bash
+docker compose up --build
+```
+
+If auth variables are not present in your Docker environment, the backend will fail to start.
+
+## Cloud Deployment
+
+- Platform: Render
+- Live URL: `https://bible-yp6u.onrender.com/`
+
+## Housekeeping (this cleanup)
+
+Removed legacy/unused backend artifacts:
+
+- `server/app.py` (old Flask server)
+- `server/index.js` (old Node proxy)
+- `server/package.json` (Node proxy deps)
+- `server/README.md` (Node proxy docs)
+- `server/__pycache__/` (generated cache)
