@@ -37,7 +37,7 @@ Single FastAPI server on port 3000 that:
 1. Serves all static files (`index.html`, `styles.css`, `js/*.js`, etc.) via `StaticFiles` mount
 2. Provides Bible data from local KJV JSON files
 3. Proxies OpenAI TTS requests
-4. Streams GPT-4o-mini commentary via SSE
+4. Streams GPT-4o-mini commentary and book discussion chat via SSE
 
 Frontend is split across plain scripts loaded in order:
 - `js/app.js` (shared state, app setup, books/recent, shared helpers)
@@ -56,7 +56,7 @@ Frontend is split across plain scripts loaded in order:
 | `GET /api/bible/search?q=` | Full-text verse search (max 200 results) |
 | `POST /api/tts` | OpenAI TTS — body: `{text, voice, speed}`, returns MP3 |
 | `GET /api/commentary?book=&chapter=&verse=&text=` | SSE-streamed GPT-4o-mini commentary |
-| `POST /api/book-chat` | Back-and-forth chat for selected book context — body: `{book, user_message, chapter_count, quick_review, history}` |
+| `POST /api/book-chat` | SSE-streamed chat for selected book context — body: `{book, user_message, chapter_count, quick_review, history}` |
 | `GET /` (catch-all) | Static file serving |
 
 All frontend API calls use **relative paths** (e.g. `/api/bible/genesis/1`) — no hardcoded ports.

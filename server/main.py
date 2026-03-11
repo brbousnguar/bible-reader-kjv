@@ -453,7 +453,10 @@ async def api_book_chat(req: BookChatRequest, request: Request):
     require_auth(request)
     api_key = os.environ.get('OPENAI_API_KEY')
     if not api_key:
-        raise HTTPException(status_code=500, detail='OPENAI_API_KEY not configured')
+        async def err():
+            yield f"data: {json.dumps({'error': 'OPENAI_API_KEY not configured'})}\n\n"
+            yield 'data: [DONE]\n\n'
+        return StreamingResponse(err(), media_type='text/event-stream')
 
     raw_book = (req.book or '').strip()
     user_message = (req.user_message or '').strip()
@@ -496,35 +499,43 @@ async def api_book_chat(req: BookChatRequest, request: Request):
         f'Answer only about this selected biblical book unless the user asks to compare books.'
     )
 
-    try:
-        completion = await client.chat.completions.create(
-            model='gpt-4o-mini',
-            messages=[
-                {
-                    'role': 'system',
-                    'content': (
-                        'You are a Bible study assistant. Give clear, accurate, respectful answers in short paragraphs '
-                        'or bullet points. Use the provided book context and mention uncertainty if needed.'
-                    ),
-                },
-                {'role': 'system', 'content': context_prompt},
-                *clean_history,
-                {'role': 'user', 'content': user_message[:1200]},
-            ],
-            max_tokens=350,
-            temperature=0.4,
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f'Chat generation failed: {str(e)}')
+    async def generate():
+        try:
+            stream = await client.chat.completions.create(
+                model='gpt-4o-mini',
+                messages=[
+                    {
+                        'role': 'system',
+                        'content': (
+                            'You are a Bible study assistant. Give clear, accurate, respectful answers in short paragraphs '
+                            'or bullet points. Use the provided book context and mention uncertainty if needed.'
+                        ),
+                    },
+                    {'role': 'system', 'content': context_prompt},
+                    *clean_history,
+                    {'role': 'user', 'content': user_message[:1200]},
+                ],
+                max_tokens=350,
+                temperature=0.4,
+                stream=True,
+            )
+            async for chunk in stream:
+                delta = chunk.choices[0].delta.content if chunk.choices else None
+                if delta:
+                    yield f"data: {json.dumps({'delta': delta})}\n\n"
+            yield 'data: [DONE]\n\n'
+        except Exception as e:
+            yield f"data: {json.dumps({'error': f'Chat generation failed: {str(e)}'})}\n\n"
+            yield 'data: [DONE]\n\n'
 
-    reply = ((completion.choices or [{}])[0].message.content or '').strip()
-    if not reply:
-        raise HTTPException(status_code=500, detail='Empty chat response')
-    return {
-        'book': book_name,
-        'chapter_count': chapter_count,
-        'reply': reply,
-    }
+    return StreamingResponse(
+        generate(),
+        media_type='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+        },
+    )
 
 
 def _resolve_lan_ip():

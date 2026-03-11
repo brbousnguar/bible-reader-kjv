@@ -66,6 +66,30 @@ Query params: `book`, `chapter`, `verse`, `text`
 
 The stream sends text tokens as `data: <token>` events, ending with `data: [DONE]`. Errors are sent as `data: [ERROR] <message>` followed by `data: [DONE]`.
 
+### Book Chat (SSE)
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/book-chat` | Streams GPT-4o-mini discussion for the selected book as Server-Sent Events |
+
+Request body:
+```json
+{
+  "book": "Revelation",
+  "user_message": "What are the main themes in this book?",
+  "chapter_count": 22,
+  "quick_review": {
+    "author": "John of Patmos"
+  },
+  "history": [
+    { "role": "user", "content": "..." },
+    { "role": "assistant", "content": "..." }
+  ]
+}
+```
+
+Each SSE event is JSON in the `data:` field, for example `{"delta":"text chunk"}`. The stream ends with `data: [DONE]`. Errors are sent as `{"error":"message"}` before `[DONE]`.
+
 ## Environment Variables
 
 | Variable | Required | Description |

@@ -449,6 +449,44 @@ function setBookChatHistory(bookName, messages){
   localStorage.setItem(bookChatKey, JSON.stringify(map));
 }
 
+async function readSseStream(response, handlers = {}){
+  if(!response.body) throw new Error('Streaming response body is not available');
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while(true){
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+
+    let boundary = buffer.indexOf('\n\n');
+    while(boundary !== -1){
+      const rawEvent = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+
+      const dataLines = rawEvent
+        .split('\n')
+        .filter(line => line.startsWith('data:'))
+        .map(line => line.slice(5).trimStart());
+      const payload = dataLines.join('\n');
+
+      if(payload){
+        if(payload === '[DONE]'){
+          if(typeof handlers.onDone === 'function') handlers.onDone();
+          return;
+        }
+        if(typeof handlers.onData === 'function') handlers.onData(payload);
+      }
+
+      boundary = buffer.indexOf('\n\n');
+    }
+
+    if(done) break;
+  }
+
+  if(typeof handlers.onDone === 'function') handlers.onDone();
+}
+
 function formatBookChatContent(content){
   const raw = String(content || '').replace(/\r/g, '').trim();
   if(!raw) return '';
@@ -519,10 +557,16 @@ function formatBookChatContent(content){
   return html || `<p>${safe}</p>`;
 }
 
-function renderBookChatMessages(bookName){
+function renderBookChatMessages(bookName, options = {}){
   const listEl = document.getElementById('bookChatMessages');
   if(!listEl) return;
-  const history = getBookChatHistory(bookName);
+  const history = getBookChatHistory(bookName).slice();
+  const transientAssistantContent = typeof options.transientAssistantContent === 'string'
+    ? options.transientAssistantContent
+    : null;
+  if(transientAssistantContent !== null){
+    history.push({ role: 'assistant', content: transientAssistantContent });
+  }
   if(!history.length){
     listEl.innerHTML = '<p class="book-chat-empty">Ask about themes, places, structure, or key messages in this book.</p>';
     return;
@@ -558,12 +602,15 @@ async function sendBookChatMessage(book, meta){
   input.disabled = true;
 
   const statusEl = document.getElementById('bookChatStatus');
-  if(statusEl) statusEl.textContent = 'Thinking...';
+  if(statusEl) statusEl.textContent = 'Streaming...';
 
   try{
     const res = await fetch('/api/book-chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream',
+      },
       credentials: 'same-origin',
       body: JSON.stringify({
         book: book.name,
@@ -579,12 +626,42 @@ async function sendBookChatMessage(book, meta){
       }),
     });
 
-    const data = await res.json().catch(()=> ({}));
     if(!res.ok){
+      const data = await res.json().catch(()=> ({}));
       throw new Error(data.detail || 'Could not get chat response');
     }
+
+    let assistantReply = '';
+    let streamError = '';
+
+    renderBookChatMessages(book.name, { transientAssistantContent: assistantReply });
+
+    await readSseStream(res, {
+      onData(payload){
+        try{
+          const data = JSON.parse(payload);
+          if(typeof data.delta === 'string'){
+            assistantReply += data.delta;
+            renderBookChatMessages(book.name, { transientAssistantContent: assistantReply });
+          }else if(typeof data.error === 'string'){
+            streamError = data.error;
+          }
+        }catch(e){
+          streamError = 'Invalid streaming payload';
+        }
+      },
+      onDone(){/* no-op */},
+    });
+
+    if(streamError){
+      throw new Error(streamError);
+    }
+    if(!assistantReply.trim()){
+      throw new Error('Empty chat response');
+    }
+
     const next = getBookChatHistory(book.name);
-    next.push({ role: 'assistant', content: data.reply || 'I could not generate a response.' });
+    next.push({ role: 'assistant', content: assistantReply.trim() });
     setBookChatHistory(book.name, next);
     renderBookChatMessages(book.name);
     if(statusEl) statusEl.textContent = '';

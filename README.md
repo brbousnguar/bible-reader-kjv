@@ -12,6 +12,7 @@ A Bible reading web app with a vanilla frontend and a FastAPI backend that serve
   - Static JSON files for Bible text and metadata
   - SQLite for authenticated user state (`notes`, `highlights`, `recent_books`, `read_map`)
 - Realtime transport: Server-Sent Events (SSE) for streaming verse commentary
+- Realtime transport: Server-Sent Events (SSE) for streaming verse commentary and book discussion chat
 - Deployment option: Docker Compose
 
 ## Models Used
@@ -19,7 +20,7 @@ A Bible reading web app with a vanilla frontend and a FastAPI backend that serve
 - `tts-1` for text-to-speech (`POST /api/tts`)
 - `gpt-4o-mini` for:
   - verse commentary streaming (`GET /api/commentary`)
-  - book discussion chat (`POST /api/book-chat`)
+  - book discussion chat streaming (`POST /api/book-chat`)
 
 ## Libraries and Dependencies
 
@@ -108,7 +109,7 @@ bible/
 
 - `POST /api/tts`
 - `GET /api/commentary?book=&chapter=&verse=&text=` (SSE stream)
-- `POST /api/book-chat`
+- `POST /api/book-chat` (SSE stream)
 
 ### Networking utilities
 
