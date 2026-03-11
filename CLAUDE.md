@@ -27,7 +27,10 @@ docker compose up --build
 # App: http://localhost:3000
 ```
 
-`OPENAI_API_KEY` is read from `.env` at the project root (auto-loaded by both uvicorn and Docker Compose).
+OpenAI keys are read from `.env` at the project root (auto-loaded by both uvicorn and Docker Compose):
+- `AI_TTS_API_KEY`
+- `AI_COMMENTARY_API_KEY`
+- `AI_BOOK_CHAT_API_KEY`
 
 No build step, test suite, or linter is configured.
 
@@ -93,7 +96,9 @@ All frontend API calls use **relative paths** (e.g. `/api/bible/genesis/1`) — 
 
 | Variable | Purpose |
 |---|---|
-| `OPENAI_API_KEY` | OpenAI TTS (`tts-1`) and commentary (`gpt-4o-mini`) |
+| `AI_TTS_API_KEY` | OpenAI TTS (`tts-1`) |
+| `AI_COMMENTARY_API_KEY` | OpenAI verse commentary (`gpt-4o-mini`) |
+| `AI_BOOK_CHAT_API_KEY` | OpenAI book discussion chat (`gpt-4o-mini`) |
 
 Put it in `.env` at the project root — loaded automatically by `python-dotenv` and Docker Compose.
 

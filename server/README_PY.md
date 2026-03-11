@@ -17,7 +17,9 @@ pip install -r server/requirements.txt
 Create a `.env` file in the project root:
 
 ```
-OPENAI_API_KEY=sk-proj-...
+AI_TTS_API_KEY=sk-proj-...
+AI_COMMENTARY_API_KEY=sk-proj-...
+AI_BOOK_CHAT_API_KEY=sk-proj-...
 ```
 
 ## Run
@@ -94,7 +96,9 @@ Each SSE event is JSON in the `data:` field, for example `{"delta":"text chunk"}
 
 | Variable | Required | Description |
 |---|---|---|
-| `OPENAI_API_KEY` | Yes | Used for TTS and commentary |
+| `AI_TTS_API_KEY` | Yes | Used only for TTS (`POST /api/tts`) |
+| `AI_COMMENTARY_API_KEY` | Yes | Used only for verse commentary (`GET /api/commentary`) |
+| `AI_BOOK_CHAT_API_KEY` | Yes | Used only for book discussion chat (`POST /api/book-chat`) |
 
 The server loads `.env` from the working directory via `python-dotenv`.
 

@@ -49,6 +49,12 @@ if not _auth_pass_hash:
 _db_path_default = Path('/var/data/bible_app.db') if Path('/var/data').exists() else (Path(__file__).resolve().parent / 'bible_app.db')
 _db_path = Path(os.environ.get('APP_DATA_DB_PATH', str(_db_path_default)))
 
+_ai_key_env_by_feature = {
+    'tts': 'AI_TTS_API_KEY',
+    'commentary': 'AI_COMMENTARY_API_KEY',
+    'book_chat': 'AI_BOOK_CHAT_API_KEY',
+}
+
 
 def _db_connect():
     _db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,6 +84,16 @@ def _init_db():
 
 
 _init_db()
+
+
+def _get_ai_api_key(feature: str) -> str:
+    env_name = _ai_key_env_by_feature.get(feature)
+    if not env_name:
+        raise RuntimeError(f'Unknown AI feature: {feature}')
+    api_key = os.environ.get(env_name, '').strip()
+    if not api_key:
+        raise HTTPException(status_code=500, detail=f'{env_name} not configured')
+    return api_key
 
 
 def load_kjv_index():
@@ -367,10 +383,7 @@ class BookChatRequest(BaseModel):
 @app.post('/api/tts')
 async def api_tts(req: TTSRequest, request: Request):
     require_auth(request)
-    api_key = os.environ.get('OPENAI_API_KEY')
-    if not api_key:
-        raise HTTPException(status_code=500, detail='OPENAI_API_KEY not configured')
-    client = AsyncOpenAI(api_key=api_key)
+    client = AsyncOpenAI(api_key=_get_ai_api_key('tts'))
     response = await client.audio.speech.create(
         model='tts-1',
         voice=req.voice,
@@ -395,11 +408,11 @@ async def api_commentary(
     text: str = Query(''),
 ):
     require_auth(request)
-    api_key = os.environ.get('OPENAI_API_KEY')
-
-    if not api_key:
+    try:
+        api_key = _get_ai_api_key('commentary')
+    except HTTPException as exc:
         async def err():
-            yield 'data: [ERROR] OPENAI_API_KEY not configured\n\n'
+            yield f'data: [ERROR] {exc.detail}\n\n'
             yield 'data: [DONE]\n\n'
         return StreamingResponse(err(), media_type='text/event-stream')
 
@@ -451,10 +464,11 @@ async def api_commentary(
 @app.post('/api/book-chat')
 async def api_book_chat(req: BookChatRequest, request: Request):
     require_auth(request)
-    api_key = os.environ.get('OPENAI_API_KEY')
-    if not api_key:
+    try:
+        api_key = _get_ai_api_key('book_chat')
+    except HTTPException as exc:
         async def err():
-            yield f"data: {json.dumps({'error': 'OPENAI_API_KEY not configured'})}\n\n"
+            yield f"data: {json.dumps({'error': exc.detail})}\n\n"
             yield 'data: [DONE]\n\n'
         return StreamingResponse(err(), media_type='text/event-stream')
 

@@ -29,9 +29,11 @@ if [ ! -f ".env" ]; then
   echo ""
   echo "⚠️  No .env file found!"
   echo "   Create a file named .env in this folder with:"
-  echo "   OPENAI_API_KEY=sk-proj-..."
+  echo "   AI_TTS_API_KEY=sk-proj-..."
+  echo "   AI_COMMENTARY_API_KEY=sk-proj-..."
+  echo "   AI_BOOK_CHAT_API_KEY=sk-proj-..."
   echo ""
-  echo "   AI voice and commentary will not work without it."
+  echo "   AI voice and text features will not work without them."
   echo ""
 fi
 

@@ -10,7 +10,7 @@
 ## Architecture Overview
 - Single FastAPI server serves the frontend and API under the same origin (port 3000).
 - Frontend calls the API via relative paths like `/api/bible/{slug}/{chapter}`.
-- AI features (TTS + commentary) are handled by the FastAPI backend using the `OPENAI_API_KEY`.
+- AI features are handled by the FastAPI backend using separate keys: `AI_TTS_API_KEY`, `AI_COMMENTARY_API_KEY`, and `AI_BOOK_CHAT_API_KEY`.
 
 ## Build, Test, and Development Commands
 - Python backend (primary):
@@ -38,7 +38,7 @@
   - Screenshots or a short video for UI changes
 
 ## Security & Configuration Tips
-- Put secrets in a root `.env` file (e.g., `OPENAI_API_KEY=...`). Do not commit `.env`.
+- Put secrets in a root `.env` file (e.g., `AI_TTS_API_KEY=...`, `AI_COMMENTARY_API_KEY=...`, `AI_BOOK_CHAT_API_KEY=...`). Do not commit `.env`.
 - AI features require a valid OpenAI key and internet access.
 
 ## Agent-Specific Notes
