@@ -11,16 +11,25 @@ A Bible reading web app with a vanilla frontend and a FastAPI backend that serve
 - Data storage:
   - Static JSON files for Bible text and metadata
   - SQLite for authenticated user state (`notes`, `highlights`, `recent_books`, `read_map`)
-- Realtime transport: Server-Sent Events (SSE) for streaming verse commentary
 - Realtime transport: Server-Sent Events (SSE) for streaming verse commentary and book discussion chat
 - Deployment option: Docker Compose
 
-## Models Used
+## Model Stack
 
-- `tts-1` for text-to-speech (`POST /api/tts`)
-- `gpt-4o-mini` for:
-  - verse commentary streaming (`GET /api/commentary`)
-  - book discussion chat streaming (`POST /api/book-chat`)
+The app currently uses the OpenAI SDK with separate API keys per AI feature.
+
+| Feature | User-facing behavior | Endpoint | Model | API key |
+|---|---|---|---|---|
+| Read verse / Read chapter | Text-to-speech audio playback | `POST /api/tts` | `tts-1` | `AI_TTS_API_KEY` |
+| Explain verse | Streaming verse explanation / commentary | `GET /api/commentary` | `gpt-4o-mini` | `AI_COMMENTARY_API_KEY` |
+| Discuss the Book | Streaming book-level Q&A chat | `POST /api/book-chat` | `gpt-4o-mini` | `AI_BOOK_CHAT_API_KEY` |
+
+### How The App Uses Different Models
+
+- Audio generation is isolated from text generation. Verse and chapter reading call the TTS endpoint, which returns MP3 audio.
+- Verse explanation is a lightweight streamed text generation flow optimized for short commentary on one verse at a time.
+- Book discussion is a separate streamed text generation flow that includes selected book context, quick-review metadata, and recent chat history.
+- The environment variable names are provider-neutral, so the configuration is not tightly coupled to `openai` naming even though the current implementation uses the OpenAI SDK and models.
 
 ## Libraries and Dependencies
 
