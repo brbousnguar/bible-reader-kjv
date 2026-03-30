@@ -1,16 +1,14 @@
-version: '3.8'
 services:
   app:
     build:
       context: ./server
       dockerfile: Dockerfile
+    env_file:
+      - .env
     ports:
       - "3000:3000"
     volumes:
       - ./:/app/static:ro
       - ./bibles:/app/bibles:ro
     environment:
-      - PORT=3000
-      - AI_TTS_API_KEY=${AI_TTS_API_KEY}
-      - AI_COMMENTARY_API_KEY=${AI_COMMENTARY_API_KEY}
-      - AI_BOOK_CHAT_API_KEY=${AI_BOOK_CHAT_API_KEY}
+      PORT: "3000"
