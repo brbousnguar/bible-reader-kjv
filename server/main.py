@@ -385,7 +385,7 @@ async def api_tts(req: TTSRequest, request: Request):
     require_auth(request)
     client = AsyncOpenAI(api_key=_get_ai_api_key('tts'))
     response = await client.audio.speech.create(
-        model='tts-1',
+        model='tts-1-hd',
         voice=req.voice,
         input=req.text,
         speed=max(0.25, min(4.0, req.speed)),
@@ -426,7 +426,7 @@ async def api_commentary(
     async def generate():
         try:
             stream = await client.chat.completions.create(
-                model='gpt-4o-mini',
+                model='gpt-4.1',
                 messages=[
                     {
                         'role': 'system',
@@ -516,7 +516,7 @@ async def api_book_chat(req: BookChatRequest, request: Request):
     async def generate():
         try:
             stream = await client.chat.completions.create(
-                model='gpt-4o-mini',
+                model='gpt-4.1',
                 messages=[
                     {
                         'role': 'system',
